@@ -14,11 +14,22 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "lcobucci/jwt": "^3.3"
+        "lcobucci/jwt": "^3.3",
+        "nette/php-generator": "^3.2"
     },
     "autoload": {
         "psr-4": {
             "think\\JwtAuth\\": "src/"
+        }
+    },
+    "extra": {
+        "think": {
+            "services": [
+                "think\\JwtAuth\\JwtAuthService"
+            ],
+            "config": {
+                "jwt-auth": "src/Config/config.php"
+            }
         }
     }
 }

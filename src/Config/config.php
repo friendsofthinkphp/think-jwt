@@ -8,7 +8,7 @@ return [
     'sso_key' => 'id',
     
     // 秘钥
-    'signer_key' => '5k*!X^oF',
+    'signer_key' => '',
 
     // 在此时间前不可用(秒)
     'not_before' => 0,
