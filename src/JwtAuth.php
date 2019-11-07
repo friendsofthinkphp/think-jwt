@@ -14,11 +14,21 @@ use think\JwtAuth\Exception\VerifyDataException;
 use think\JwtAuth\Exception\TokenInvalidException;
 use think\JwtAuth\Exception\TokenNotAvailableException;
 use think\JwtAuth\Exception\TokenExpiredException;
+use think\facade\Cache;
 use RuntimeException;
 
 class JwtAuth
 {
+    // 缓存前缀
+    const CACHE_PRE = 'jwt-auth-user-';
+
     private $options = [
+        // 单点登录
+        'sso' => true,
+
+        // 单点登录用户唯一标识
+        'sso_key' => 'id',
+
         // 秘钥
         'signer_key' => '5k*!X^oF',
 
@@ -60,9 +70,20 @@ class JwtAuth
         $expires_at = (int) $this->options['expires_at'] + $time;
         $not_before = (int) $this->options['not_before'] + $time;
 
+        // 单点登录
+        if ($this->options['sso']) {
+            if (!isset($claims[$this->options['sso_key']])) {
+                throw new Exception('sso_key not found');
+            }
+            $uniqid = $claims[$this->options['sso_key']];
+        } else {
+            $uniqid = uniqid();
+        }
+
         $this->builder->setIssuedAt($time)
             ->identifiedBy(uniqid(), true)
             ->setNotBefore($not_before)
+            ->set('refresh_time', $time)
             ->setExpiration($expires_at);
 
         $claims = array_merge($this->options['claims'], $claims);
@@ -72,6 +93,8 @@ class JwtAuth
 
         $token = $this->builder->getToken($this->getSigner(), $this->getSignerKey());
 
+        Cache::set(self::CACHE_PRE.$uniqid, $token, $this->options['not_before']);
+        
         return $token;
     }
 
@@ -134,9 +157,18 @@ class JwtAuth
                 throw new TokenExpiredException('Token 已过期');
             }
 
+            
             throw new VerifyDataException('数据验证失败');
         }
 
+        // 单点登录
+        if ($this->options['sso']) {
+            $refresh_time = $this->token->getHeader('refresh_time');
+            $cache_time = Cache::get(self::CACHE_PRE . $jwt_id);
+            if ($refresh_time != $cache_time) {
+                throw new Exception('已在其它终端登录，请重新登录');
+            }
+        }
         return true;
     }
 

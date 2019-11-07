@@ -1,6 +1,12 @@
 <?php
 
 return [
+    // 单点登录
+    'sso' => true,
+
+    // 单点登录用户唯一标识
+    'sso_key' => 'id',
+    
     // 秘钥
     'signer_key' => '5k*!X^oF',
 
