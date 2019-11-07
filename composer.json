@@ -1,0 +1,24 @@
+{
+    "name": "xiaodi/think-jwt-auth",
+    "license": "MIT",
+    "keywords": [
+        "php",
+        "thinkphp"
+    ],
+    "description": "ThinkPHP JwtAuth Component",
+    "authors": [
+        {
+            "name": "xiaodi",
+            "email": "liangjinbiao@live.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "lcobucci/jwt": "^3.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "think\\JwtAuth\\": "src/"
+        }
+    }
+}
