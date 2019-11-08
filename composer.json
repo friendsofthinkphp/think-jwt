@@ -1,5 +1,6 @@
 {
     "name": "xiaodi/think-jwt-auth",
+    "type": "think-extend",
     "license": "MIT",
     "keywords": [
         "php",
@@ -30,6 +31,9 @@
             "config": {
                 "jwt-auth": "src/Config/config.php"
             }
+        },
+        "think-config": {
+            "jwt-auth": "src/Config/config.php"
         }
     }
 }

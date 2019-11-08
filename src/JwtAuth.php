@@ -12,10 +12,10 @@ use think\JwtAuth\Exception\Exception;
 use think\JwtAuth\Exception\SignerKeyException;
 use think\JwtAuth\Exception\VerifyDataException;
 use think\JwtAuth\Exception\TokenInvalidException;
+use think\JwtAuth\Exception\HasLoggedException;
 use think\JwtAuth\Exception\TokenNotAvailableException;
 use think\JwtAuth\Exception\TokenExpiredException;
 use think\facade\Cache;
-use RuntimeException;
 
 class JwtAuth
 {
@@ -30,7 +30,7 @@ class JwtAuth
         'sso_key' => 'id',
 
         // 秘钥
-        'signer_key' => '5k*!X^oF',
+        'signer_key' => '',
 
         // 在此时间前不可用(秒)
         'not_before' => 0,
@@ -46,6 +46,14 @@ class JwtAuth
             'iss' => '',
             //请求端url
             'aud' => ''
+        ],
+
+        'header' => 'Authorization',
+
+        // 中间件自动注入用户模型
+        'user' => [
+            'allow' => true,
+            'model' => ''
         ]
     ];
 
@@ -56,6 +64,8 @@ class JwtAuth
     public function __construct()
     {
         $this->builder = new Builder();
+        // TODO 5.1 config() 得加 "."
+        $this->options = array_merge($this->options, config('jwt-auth.'));
     }
 
     /**
@@ -81,7 +91,7 @@ class JwtAuth
         }
 
         $this->builder->setIssuedAt($time)
-            ->identifiedBy(uniqid(), true)
+            ->identifiedBy($uniqid, true)
             ->setNotBefore($not_before)
             ->set('refresh_time', $time)
             ->setExpiration($expires_at);
@@ -93,8 +103,8 @@ class JwtAuth
 
         $token = $this->builder->getToken($this->getSigner(), $this->getSignerKey());
 
-        Cache::set(self::CACHE_PRE.$uniqid, $token, $this->options['not_before']);
-        
+        Cache::set(self::CACHE_PRE . $uniqid, $time, $this->options['expires_at'] + $this->options['not_before']);
+
         return $token;
     }
 
@@ -108,11 +118,21 @@ class JwtAuth
     {
         try {
             $token = (new Parser())->parse((string) $token);
-        } catch (RuntimeException $e) {
-            throw new TokenInvalidException('Token 解析出错');
+        } catch (\Exception $e) {
+            throw new TokenInvalidException('此 Token 解析失败');
         }
 
         return $token;
+    }
+
+    /**
+     * 获取Token对象
+     *
+     * @return void
+     */
+    public function getParse()
+    {
+        return $this->token;
     }
 
     /**
@@ -124,8 +144,15 @@ class JwtAuth
     public function verify($token)
     {
         $this->token = $this->parseToken($token);
-        if (false === $this->token->verify($this->getSigner(), $this->getSignerKey())) {
-            throw new SignerKeyException('验证秘钥不正确');
+
+        try {
+            if (false === $this->token->verify($this->getSigner(), $this->getSignerKey())) {
+                throw new SignerKeyException('效验秘钥错误');
+            }
+        } catch (\BadMethodCallException $e) {
+            throw new \BadMethodCallException('此 Token 未进行签名');
+        } catch (\InvalidArgumentException $e) {
+            throw new \BadMethodCallException('此 Token 解析失败');
         }
 
         // 验证token是否过期
@@ -157,16 +184,15 @@ class JwtAuth
                 throw new TokenExpiredException('Token 已过期');
             }
 
-            
             throw new VerifyDataException('数据验证失败');
         }
 
         // 单点登录
         if ($this->options['sso']) {
-            $refresh_time = $this->token->getHeader('refresh_time');
+            $refresh_time = $this->token->getClaim('refresh_time');
             $cache_time = Cache::get(self::CACHE_PRE . $jwt_id);
             if ($refresh_time != $cache_time) {
-                throw new Exception('已在其它终端登录，请重新登录');
+                throw new HasLoggedException('已在其它终端登录，请重新登录');
             }
         }
         return true;
@@ -181,7 +207,7 @@ class JwtAuth
     public function refreshToken(Token $token)
     {
         $claims = $token->getClaims();
-        
+
         unset($claims['iat']);
         unset($claims['jti']);
         unset($claims['nbf']);
@@ -206,5 +232,18 @@ class JwtAuth
     protected function getSignerKey()
     {
         return new Key($this->options['signer_key']);
+    }
+
+    /**
+     * 获取用户模型对象
+     *
+     * @return void
+     */
+    public function user()
+    {
+        $uid = $this->token->getClaim($this->options['sso_key']);
+        $model = $this->options['user']['model'];
+
+        return $model::get($uid);
     }
 }

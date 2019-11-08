@@ -24,5 +24,13 @@ return [
         'iss' => '',
         //请求端url
         'aud' => ''
+    ],
+
+    'header' => 'Authorization',
+
+    // 中间件自动注入用户模型
+    'user' => [
+        'allow' => true,
+        'model' => ''
     ]
 ];
