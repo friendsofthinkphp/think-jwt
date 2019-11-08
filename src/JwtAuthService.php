@@ -3,7 +3,6 @@
 namespace think\JwtAuth;
 
 use think\JwtAuth\Command\JwtAuthCommand;
-use think\JwtAuth\Command\JwtAuthCommand2;
 
 class JwtAuthService extends \think\Service
 {

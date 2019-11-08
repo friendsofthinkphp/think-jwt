@@ -6,7 +6,7 @@ return [
 
     // 单点登录用户唯一标识
     'sso_key' => 'id',
-    
+
     // 秘钥
     'signer_key' => '',
 
@@ -23,7 +23,7 @@ return [
         //发布端url
         'iss' => '',
         //请求端url
-        'aud' => ''
+        'aud' => '',
     ],
 
     'header' => 'Authorization',
@@ -31,6 +31,6 @@ return [
     // 中间件自动注入用户模型
     'user' => [
         'allow' => true,
-        'model' => ''
-    ]
+        'model' => '',
+    ],
 ];

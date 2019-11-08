@@ -3,11 +3,9 @@
 namespace think\JwtAuth\Middleware;
 
 use think\JwtAuth\JwtAuth as Jwt;
-use think\Response;
-use think\JwtAuth\Exception\TokenNotAvailableException;
+
 /**
- * 中间件
- * 
+ * 中间件.
  */
 class JwtAuth
 {
@@ -18,14 +16,14 @@ class JwtAuth
         if (empty($token)) {
             throw new \Exception('miss token.');
         }
-        
+
         $jwt = new Jwt();
 
         try {
             $jwt->verify($token);
-        } catch(\think\JwtAuth\Exception\HasLoggedException $e) {
+        } catch (\think\JwtAuth\Exception\HasLoggedException $e) {
             // 账号已在其它地方登录
-        } catch(\think\JwtAuth\Exception\TokenExpiredException $e) {
+        } catch (\think\JwtAuth\Exception\TokenExpiredException $e) {
             // Token 已过期
         }
 

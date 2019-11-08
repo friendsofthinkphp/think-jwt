@@ -3,19 +3,19 @@
 namespace think\JwtAuth;
 
 use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Parser;
+use Lcobucci\JWT\Signer\Hmac;
+use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\ValidationData;
-use Lcobucci\JWT\Signer\Hmac;
-use think\JwtAuth\Exception\Exception;
-use think\JwtAuth\Exception\SignerKeyException;
-use think\JwtAuth\Exception\VerifyDataException;
-use think\JwtAuth\Exception\TokenInvalidException;
-use think\JwtAuth\Exception\HasLoggedException;
-use think\JwtAuth\Exception\TokenNotAvailableException;
-use think\JwtAuth\Exception\TokenExpiredException;
 use think\facade\Cache;
+use think\JwtAuth\Exception\Exception;
+use think\JwtAuth\Exception\HasLoggedException;
+use think\JwtAuth\Exception\SignerKeyException;
+use think\JwtAuth\Exception\TokenExpiredException;
+use think\JwtAuth\Exception\TokenInvalidException;
+use think\JwtAuth\Exception\TokenNotAvailableException;
+use think\JwtAuth\Exception\VerifyDataException;
 
 class JwtAuth
 {
@@ -45,7 +45,7 @@ class JwtAuth
             //发布端url
             'iss' => '',
             //请求端url
-            'aud' => ''
+            'aud' => '',
         ],
 
         'header' => 'Authorization',
@@ -53,8 +53,8 @@ class JwtAuth
         // 中间件自动注入用户模型
         'user' => [
             'allow' => true,
-            'model' => ''
-        ]
+            'model' => '',
+        ],
     ];
 
     private $builder;
@@ -69,9 +69,10 @@ class JwtAuth
     }
 
     /**
-     * 生成Token
+     * 生成Token.
      *
      * @param array $claims 自定义数据
+     *
      * @return void
      */
     public function getToken(array $claims)
@@ -103,15 +104,16 @@ class JwtAuth
 
         $token = $this->builder->getToken($this->getSigner(), $this->getSignerKey());
 
-        Cache::set(self::CACHE_PRE . $uniqid, $time, $this->options['expires_at'] + $this->options['not_before']);
+        Cache::set(self::CACHE_PRE.$uniqid, $time, $this->options['expires_at'] + $this->options['not_before']);
 
         return $token;
     }
 
     /**
-     * 解析Token
+     * 解析Token.
      *
      * @param [type] $token
+     *
      * @return void
      */
     protected function parseToken($token)
@@ -136,9 +138,10 @@ class JwtAuth
     }
 
     /**
-     * 验证Token
+     * 验证Token.
      *
      * @param [type] $token
+     *
      * @return void
      */
     public function verify($token)
@@ -160,7 +163,7 @@ class JwtAuth
     }
 
     /**
-     * 验证数据
+     * 验证数据.
      *
      * @return void
      */
@@ -180,7 +183,7 @@ class JwtAuth
             $exp = $this->token->getClaim('exp');
             if (time() < $exp) {
                 throw new TokenNotAvailableException('Token 暂未可用');
-            } else if (time() > $exp) {
+            } elseif (time() > $exp) {
                 throw new TokenExpiredException('Token 已过期');
             }
 
@@ -190,18 +193,20 @@ class JwtAuth
         // 单点登录
         if ($this->options['sso']) {
             $refresh_time = $this->token->getClaim('refresh_time');
-            $cache_time = Cache::get(self::CACHE_PRE . $jwt_id);
+            $cache_time = Cache::get(self::CACHE_PRE.$jwt_id);
             if ($refresh_time != $cache_time) {
                 throw new HasLoggedException('已在其它终端登录，请重新登录');
             }
         }
+
         return true;
     }
 
     /**
-     * 刷新Token
+     * 刷新Token.
      *
      * @param Token $token
+     *
      * @return void
      */
     public function refreshToken(Token $token)
@@ -221,7 +226,7 @@ class JwtAuth
     protected function getSigner()
     {
         $className = $this->options['signer'];
-        $signer = new $className;
+        $signer = new $className();
         if (false === $signer instanceof Hmac) {
             throw new Exception("{$className} is not extend Lcobucci\JWT\Signer\Hmac");
         }
