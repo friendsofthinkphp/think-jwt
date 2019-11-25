@@ -2,8 +2,6 @@
 
 namespace xiaodi;
 
-use xiaodi\JwtAuth;
-use think\facade\Route;
 use xiaodi\Command\JwtAuthCommand;
 
 class JwtAuthService extends \think\Service

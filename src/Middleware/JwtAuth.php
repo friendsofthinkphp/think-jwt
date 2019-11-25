@@ -4,8 +4,6 @@ namespace xiaodi\Middleware;
 
 use think\App;
 use think\facade\Route;
-use think\middleware\AllowCrossDomain;
-
 use xiaodi\BearerToken;
 use xiaodi\Exception\HasLoggedException;
 use xiaodi\Exception\TokenExpiredException;
