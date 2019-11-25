@@ -20,20 +20,20 @@
     },
     "autoload": {
         "psr-4": {
-            "think\\JwtAuth\\": "src/"
+            "xiaodi\\": "src/"
         }
     },
     "extra": {
         "think": {
             "services": [
-                "think\\JwtAuth\\JwtAuthService"
+                "xiaodi\\JwtAuthService"
             ],
             "config": {
-                "jwt-auth": "src/Config/config.php"
+                "jwt-auth": "config/config.php"
             }
         },
         "think-config": {
-            "jwt-auth": "src/Config/config.php"
+            "jwt-auth": "config/config.php"
         }
     }
 }

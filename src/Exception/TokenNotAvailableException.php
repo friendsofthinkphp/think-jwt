@@ -1,6 +1,6 @@
 <?php
 
-namespace think\JwtAuth\Exception;
+namespace xiaodi\Exception;
 
 /**
  * Token 暂未可用.

@@ -1,35 +1,45 @@
 <?php
 
-namespace think\JwtAuth\Middleware;
+namespace xiaodi\Middleware;
 
-use think\JwtAuth\JwtAuth as Jwt;
+use think\App;
+use think\facade\Route;
+use think\middleware\AllowCrossDomain;
+
+use xiaodi\BearerToken;
+use xiaodi\Exception\HasLoggedException;
+use xiaodi\Exception\TokenExpiredException;
 
 /**
  * 中间件.
  */
 class JwtAuth
 {
+    private $auth;
+
+    public function __construct(App $app, BearerToken $bearerToken)
+    {
+        Route::allowCrossDomain();
+
+        $this->auth = $app->auth;
+        $this->bearerToken = $bearerToken;
+    }
+
     public function handle($request, \Closure $next)
     {
-        $token = $request->header(config('jwt-auth.header'));
-
-        if (empty($token)) {
-            throw new \Exception('miss token.');
-        }
-
-        $jwt = new Jwt();
+        $token = $this->bearerToken->getToken();
 
         try {
-            $jwt->verify($token);
-        } catch (\think\JwtAuth\Exception\HasLoggedException $e) {
+            $this->auth->verify($token);
+        } catch (HasLoggedException $e) {
             // 账号已在其它地方登录
-        } catch (\think\JwtAuth\Exception\TokenExpiredException $e) {
+        } catch (TokenExpiredException $e) {
             // Token 已过期
         }
 
         // 自动注入用户模型
-        if (config('jwt-auth.user.allow')) {
-            $request->user = $jwt->user();
+        if ($this->auth->injectUser()) {
+            $request->user = $this->auth->user();
         }
 
         return $next($request);

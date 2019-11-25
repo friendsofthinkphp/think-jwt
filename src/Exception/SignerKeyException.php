@@ -1,6 +1,6 @@
 <?php
 
-namespace think\JwtAuth\Exception;
+namespace xiaodi\Exception;
 
 class SignerKeyException extends Exception
 {

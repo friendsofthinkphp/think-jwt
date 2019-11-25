@@ -1,6 +1,6 @@
 <?php
 
-namespace think\JwtAuth;
+namespace xiaodi;
 
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
@@ -9,18 +9,20 @@ use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\ValidationData;
 use think\facade\Cache;
-use think\JwtAuth\Exception\Exception;
-use think\JwtAuth\Exception\HasLoggedException;
-use think\JwtAuth\Exception\SignerKeyException;
-use think\JwtAuth\Exception\TokenExpiredException;
-use think\JwtAuth\Exception\TokenInvalidException;
-use think\JwtAuth\Exception\TokenNotAvailableException;
-use think\JwtAuth\Exception\VerifyDataException;
+use xiaodi\Exception\Exception;
+use xiaodi\Exception\HasLoggedException;
+use xiaodi\Exception\SignerKeyException;
+use xiaodi\Exception\TokenExpiredException;
+use xiaodi\Exception\TokenInvalidException;
+use xiaodi\Exception\TokenNotAvailableException;
+use xiaodi\Exception\VerifyDataException;
 
 class JwtAuth
 {
     // 缓存前缀
     const CACHE_PRE = 'jwt-auth-user-';
+
+    private $user;
 
     private $options = [
         // 单点登录
@@ -51,10 +53,9 @@ class JwtAuth
         'header' => 'Authorization',
 
         // 中间件自动注入用户模型
-        'user' => [
-            'allow' => true,
-            'model' => '',
-        ],
+        'inject_user' => false,
+        // 用户模型
+        'user' => '',
     ];
 
     private $builder;
@@ -65,7 +66,7 @@ class JwtAuth
     {
         $this->builder = new Builder();
         // TODO 5.1 config() 得加 "."
-        $this->options = array_merge($this->options, config('jwt-auth.'));
+        $this->options = array_merge($this->options, config('jwt-auth'));
     }
 
     /**
@@ -137,6 +138,11 @@ class JwtAuth
         return $this->token;
     }
 
+    public function getClaims()
+    {
+        return $this->token->getClaims();
+    }
+
     /**
      * 验证Token.
      *
@@ -159,7 +165,13 @@ class JwtAuth
         }
 
         // 验证token是否过期
-        return $this->verifyData();
+        if ($this->verifyData() && $this->injectUser()) {
+            $uid = $this->token->getClaim($this->options['sso_key']);
+            if ($uid) {
+                $model = $this->options['user'];
+                $this->user = $model::get($uid);
+            }
+        }
     }
 
     /**
@@ -246,9 +258,16 @@ class JwtAuth
      */
     public function user()
     {
-        $uid = $this->token->getClaim($this->options['sso_key']);
-        $model = $this->options['user']['model'];
+        return $this->user;
+    }
 
-        return $model::get($uid);
+    public function getHeader()
+    {
+        return $this->options['header'];
+    }
+
+    public function injectUser()
+    {
+        return $this->options['inject_user'];
     }
 }

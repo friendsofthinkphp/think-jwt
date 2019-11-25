@@ -1,6 +1,6 @@
 <?php
 
-namespace think\JwtAuth\Command;
+namespace xiaodi\Command;
 
 use Nette\PhpGenerator\Helpers;
 use Nette\PhpGenerator\PhpFile;
