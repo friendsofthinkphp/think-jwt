@@ -20,5 +20,5 @@ return [
 
     'inject_user' => false,
 
-    'user' => '',
+    'user_model' => '',
 ];

@@ -36,7 +36,13 @@ class Jwt
 
         // 自动注入用户模型
         if ($this->jwt->injectUser()) {
-            $request->user = $this->jwt->user();
+            $user = $this->jwt->user();
+            // 路由注入
+            $request->user = $user;
+
+            // 依赖注入
+            $model = $this->jwt->getUserModel();
+            $this->app->bind($model, $user);
         }
 
         $request->jwt = $this->jwt;

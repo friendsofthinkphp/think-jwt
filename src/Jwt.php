@@ -259,11 +259,16 @@ class Jwt
     {
         $uid = $this->token->getClaim($this->options['sso_key']);
         if ($uid) {
-            $model = $this->options['user'];
-            if (empty($model)) {
-                throw new Exception('用户模型文件未配置');
+            $className = $this->options['user_model'];
+            if (empty($className)) {
+                throw new Exception('用户模型文件未配置.');
             }
-            $this->user = $model::find($uid);
+
+            if (!class_exists($className)) {
+                throw new Exception('用户模型文件未找到.');
+            }
+
+            $this->user = $className::find($uid);
         }
 
         return $this->user;
@@ -275,5 +280,10 @@ class Jwt
     public function injectUser()
     {
         return $this->options['inject_user'];
+    }
+
+    public function getUserModel()
+    {
+        return $this->options['user_model'];
     }
 }

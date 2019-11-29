@@ -3,14 +3,13 @@
 namespace xiaodi;
 
 use xiaodi\Command\JwtCommand;
-use xiaodi\Middleware\Jwt as Middleware;
 
 class JwtService extends \think\Service
 {
     public function register()
     {
-        $this->app->bind('JwtMiddleware', Middleware::class);
-        $this->app->bind('jwt', Jwt::class);
+        $this->app->bind('JwtMiddleware', \xiaodi\Middleware\Jwt::class);
+        $this->app->bind('jwt', \xiaodi\Jwt::class);
     }
 
     public function boot()
