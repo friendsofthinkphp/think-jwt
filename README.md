@@ -1,13 +1,13 @@
-# think-jwt-auth
+# think-jwt
 
 ### 安装
 ```sh
-$ composer require xiaodi/think-jwt-auth:dev-master
+$ composer require xiaodi/think-jwt:dev-master
 ```
 
 ### 使用
 1. 命令生成签名key
 ```sh
-$ php think auth:sign_key
+$ php think jwt:sign_key
 ```
 
