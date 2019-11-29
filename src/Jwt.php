@@ -196,7 +196,6 @@ class Jwt
 
         // 单点登录
         if ($this->options['sso']) {
-
             $refresh_time = $this->token->getClaim('refresh_time');
 
             $cache_time = Cache::get(self::CACHE_PRE.$jwt_id);
@@ -247,6 +246,7 @@ class Jwt
         if (empty($key)) {
             throw new Exception('私钥未配置.');
         }
+
         return new Key($key);
     }
 

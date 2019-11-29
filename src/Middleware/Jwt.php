@@ -3,11 +3,9 @@
 namespace xiaodi\Middleware;
 
 use think\App;
-use think\Response;
 use think\facade\Route;
+use think\Response;
 use xiaodi\BearerToken;
-use xiaodi\Exception\HasLoggedException;
-use xiaodi\Exception\TokenExpiredException;
 
 /**
  * 中间件.
@@ -32,7 +30,7 @@ class Jwt
 
         try {
             $this->jwt->verify($token);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return Response::create(['message' => $e->getMessage()], 'json');
         }
 
@@ -42,6 +40,7 @@ class Jwt
         }
 
         $request->jwt = $this->jwt;
+
         return $next($request);
     }
 }

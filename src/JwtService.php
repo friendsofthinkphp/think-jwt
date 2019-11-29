@@ -3,7 +3,6 @@
 namespace xiaodi;
 
 use xiaodi\Command\JwtCommand;
-use xiaodi\Jwt;
 use xiaodi\Middleware\Jwt as Middleware;
 
 class JwtService extends \think\Service
