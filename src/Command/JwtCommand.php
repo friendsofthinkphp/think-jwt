@@ -21,24 +21,24 @@ function randomKey()
     return implode($pass);
 }
 
-class JwtAuthCommand extends Command
+class JwtCommand extends Command
 {
     protected function configure()
     {
-        $this->setName('auth:sign_key')->setDescription('生成一个签名密钥');
+        $this->setName('jwt:sign_key')->setDescription('生成一个签名密钥');
     }
 
     protected function execute(Input $input, Output $output)
     {
         $file = new PhpFile();
-        $file->addComment('JwtAuth 配置');
+        $file->addComment('Jwt 配置');
         $file->setStrictTypes();
 
-        $config = config('jwt-auth');
+        $config = config('jwt');
         $config['signer_key'] = randomKey();
         $config = 'return '.Helpers::dump($config).';';
 
-        file_put_contents($this->app->getConfigPath().'jwt-auth.php', $file.$config);
+        file_put_contents($this->app->getConfigPath().'jwt.php', $file.$config);
         $output->writeln('> success!');
     }
 }

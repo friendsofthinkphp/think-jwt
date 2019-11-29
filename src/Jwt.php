@@ -17,7 +17,7 @@ use xiaodi\Exception\TokenInvalidException;
 use xiaodi\Exception\TokenNotAvailableException;
 use xiaodi\Exception\VerifyDataException;
 
-class JwtAuth
+class Jwt
 {
     // 缓存前缀
     const CACHE_PRE = 'jwt-auth-user-';
@@ -29,7 +29,7 @@ class JwtAuth
         'sso' => true,
 
         // 单点登录用户唯一标识
-        'sso_key' => 'id',
+        'sso_key' => 'uid',
 
         // 秘钥
         'signer_key' => '',
@@ -50,8 +50,6 @@ class JwtAuth
             'aud' => '',
         ],
 
-        'header' => 'Authorization',
-
         // 中间件自动注入用户模型
         'inject_user' => false,
         // 用户模型
@@ -66,7 +64,7 @@ class JwtAuth
     {
         $this->builder = new Builder();
         // TODO 5.1 config() 得加 "."
-        $this->options = array_merge($this->options, config('jwt-auth'));
+        $this->options = array_merge($this->options, config('jwt'));
     }
 
     /**
@@ -165,13 +163,7 @@ class JwtAuth
         }
 
         // 验证token是否过期
-        if ($this->verifyData() && $this->injectUser()) {
-            $uid = $this->token->getClaim($this->options['sso_key']);
-            if ($uid) {
-                $model = $this->options['user'];
-                $this->user = $model::get($uid);
-            }
-        }
+        return $this->verifyData();
     }
 
     /**
@@ -204,8 +196,11 @@ class JwtAuth
 
         // 单点登录
         if ($this->options['sso']) {
+
             $refresh_time = $this->token->getClaim('refresh_time');
+
             $cache_time = Cache::get(self::CACHE_PRE.$jwt_id);
+
             if ($refresh_time != $cache_time) {
                 throw new HasLoggedException('已在其它终端登录，请重新登录');
             }
@@ -248,7 +243,11 @@ class JwtAuth
 
     protected function getSignerKey()
     {
-        return new Key($this->options['signer_key']);
+        $key = $this->options['signer_key'];
+        if (empty($key)) {
+            throw new Exception('私钥未配置.');
+        }
+        return new Key($key);
     }
 
     /**
@@ -258,14 +257,21 @@ class JwtAuth
      */
     public function user()
     {
+        $uid = $this->token->getClaim($this->options['sso_key']);
+        if ($uid) {
+            $model = $this->options['user'];
+            if (empty($model)) {
+                throw new Exception('用户模型文件未配置');
+            }
+            $this->user = $model::find($uid);
+        }
+
         return $this->user;
     }
 
-    public function getHeader()
-    {
-        return $this->options['header'];
-    }
-
+    /**
+     * 是否注入用户对象.
+     */
     public function injectUser()
     {
         return $this->options['inject_user'];

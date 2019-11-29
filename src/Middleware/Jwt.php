@@ -3,6 +3,7 @@
 namespace xiaodi\Middleware;
 
 use think\App;
+use think\Response;
 use think\facade\Route;
 use xiaodi\BearerToken;
 use xiaodi\Exception\HasLoggedException;
@@ -11,15 +12,17 @@ use xiaodi\Exception\TokenExpiredException;
 /**
  * 中间件.
  */
-class JwtAuth
+class Jwt
 {
-    private $auth;
+    private $jwt;
+    private $app;
 
     public function __construct(App $app, BearerToken $bearerToken)
     {
         Route::allowCrossDomain();
 
-        $this->auth = $app->auth;
+        $this->jwt = $app->jwt;
+        $this->app = $app;
         $this->bearerToken = $bearerToken;
     }
 
@@ -28,18 +31,17 @@ class JwtAuth
         $token = $this->bearerToken->getToken();
 
         try {
-            $this->auth->verify($token);
-        } catch (HasLoggedException $e) {
-            // 账号已在其它地方登录
-        } catch (TokenExpiredException $e) {
-            // Token 已过期
+            $this->jwt->verify($token);
+        } catch(\Exception $e) {
+            return Response::create(['message' => $e->getMessage()], 'json');
         }
 
         // 自动注入用户模型
-        if ($this->auth->injectUser()) {
-            $request->user = $this->auth->user();
+        if ($this->jwt->injectUser()) {
+            $request->user = $this->jwt->user();
         }
 
+        $request->jwt = $this->jwt;
         return $next($request);
     }
 }

@@ -1,12 +1,12 @@
 {
-    "name": "xiaodi/think-jwt-auth",
+    "name": "xiaodi/think-jwt",
     "type": "think-extend",
     "license": "MIT",
     "keywords": [
         "php",
         "thinkphp"
     ],
-    "description": "ThinkPHP JwtAuth Component",
+    "description": "ThinkPHP Jwt Component",
     "authors": [
         {
             "name": "xiaodi",
@@ -26,14 +26,14 @@
     "extra": {
         "think": {
             "services": [
-                "xiaodi\\JwtAuthService"
+                "xiaodi\\JwtService"
             ],
             "config": {
-                "jwt-auth": "config/config.php"
+                "jwt": "config/config.php"
             }
         },
         "think-config": {
-            "jwt-auth": "config/config.php"
+            "jwt": "config/config.php"
         }
     }
 }
