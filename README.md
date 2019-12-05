@@ -76,3 +76,12 @@ class UserController {
 }
 
 ```
+
+5. 路由验证(中间件)
+`route/app.php`
+`allowCrossDomain()` 允许跨域
+```php
+use xiaodi\Middleware\Jwt;
+
+Route::rule('/user', 'index/user', 'GET')->allowCrossDomain()->middleware(Jwt::class);
+```
