@@ -1,5 +1,5 @@
 # think-jwt
-
+只支持 `thinkphp 6.0`
 ### 安装
 ```sh
 $ composer require xiaodi/think-jwt:dev-master
