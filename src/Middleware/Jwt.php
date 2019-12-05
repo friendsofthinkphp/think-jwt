@@ -3,9 +3,9 @@
 namespace xiaodi\Middleware;
 
 use think\App;
-use think\facade\Route;
 use think\Response;
 use xiaodi\BearerToken;
+use xiaodi\Jwt as Ac;
 
 /**
  * 中间件.
@@ -14,21 +14,19 @@ class Jwt
 {
     private $jwt;
     private $app;
+    private $bearerToken;
 
-    public function __construct(App $app, BearerToken $bearerToken)
+    public function __construct(App $app, BearerToken $bearerToken, Ac $jwt)
     {
-        Route::allowCrossDomain();
-
-        $this->jwt = $app->jwt;
+        $this->jwt = $jwt;
         $this->app = $app;
         $this->bearerToken = $bearerToken;
     }
 
     public function handle($request, \Closure $next)
     {
-        $token = $this->bearerToken->getToken();
-
         try {
+            $token = $this->bearerToken->getToken();
             $this->jwt->verify($token);
         } catch (\Exception $e) {
             return Response::create(['message' => $e->getMessage()], 'json');
