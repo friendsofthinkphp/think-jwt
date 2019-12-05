@@ -58,9 +58,10 @@ class User {
 use xiaodi\Jwt;
 
 use app\model\User;
+use xiaodi\Middleware\Jwt;
 
 class UserController {
-    protected $middleware = ['JwtMiddleware'];
+    protected $middleware = [Jwt::class];
 
     public function test(Jwt $jwt)
     {
