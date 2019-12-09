@@ -8,7 +8,7 @@ $ composer require xiaodi/think-jwt:dev-master
 ### 使用
 1. 命令生成签名key
 ```sh
-$ php think jwt:sign_key
+$ php think jwt:make
 ```
 
 2. 配置
