@@ -3,6 +3,8 @@
 return [
     'sso' => true,
 
+    'sso_cache_key' => 'jwt-auth-user',
+
     'sso_key' => 'uid',
 
     'signer_key' => '',

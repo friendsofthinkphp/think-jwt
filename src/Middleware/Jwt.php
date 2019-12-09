@@ -6,6 +6,8 @@ use think\App;
 use think\Response;
 use xiaodi\BearerToken;
 use xiaodi\Jwt as Ac;
+use xiaodi\Exception\HasLoggedException;
+use xiaodi\Exception\TokenAlreadyEexpired;
 
 /**
  * 中间件.
@@ -28,8 +30,14 @@ class Jwt
         try {
             $token = $this->bearerToken->getToken();
             $this->jwt->verify($token);
+        } catch (HasLoggedException $e) {
+            // 已在其它终端登录
+            return Response::create(['message' => $e->getMessage(), 'code' => 50001], 'json', 401);
+        } catch (TokenAlreadyEexpired $e) {
+            // Token已过期
+            return Response::create(['message' => $e->getMessage(), 'code' => 50002], 'json', 401);
         } catch (\Exception $e) {
-            return Response::create(['message' => $e->getMessage()], 'json');
+            return Response::create(['message' => $e->getMessage(), 'code' => 50003], 'json', 500);
         }
 
         // 自动注入用户模型
@@ -39,7 +47,7 @@ class Jwt
             $request->user = $user;
 
             // 依赖注入
-            $model = $this->jwt->getUserModel();
+            $model = $this->jwt->userModel();
             $this->app->bind($model, $user);
         }
 

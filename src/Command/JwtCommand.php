@@ -25,7 +25,7 @@ class JwtCommand extends Command
 {
     protected function configure()
     {
-        $this->setName('jwt:sign_key')->setDescription('生成一个签名密钥');
+        $this->setName('jwt:make')->setDescription('生成一个签名密钥');
     }
 
     protected function execute(Input $input, Output $output)

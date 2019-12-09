@@ -58,10 +58,9 @@ class User {
 use xiaodi\Jwt;
 
 use app\model\User;
-use xiaodi\Middleware\Jwt;
 
 class UserController {
-    protected $middleware = [Jwt::class];
+    protected $middleware = ['JwtMiddleware'];
 
     public function test(Jwt $jwt)
     {
@@ -75,13 +74,4 @@ class UserController {
     }
 }
 
-```
-
-5. 路由验证(中间件)
-`route/app.php`
-`allowCrossDomain()` 允许跨域
-```php
-use xiaodi\Middleware\Jwt;
-
-Route::rule('/user', 'index/user', 'GET')->allowCrossDomain()->middleware(Jwt::class);
 ```
