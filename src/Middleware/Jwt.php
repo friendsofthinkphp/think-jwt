@@ -5,9 +5,9 @@ namespace xiaodi\Middleware;
 use think\App;
 use think\Response;
 use xiaodi\BearerToken;
-use xiaodi\Jwt as Ac;
 use xiaodi\Exception\HasLoggedException;
 use xiaodi\Exception\TokenAlreadyEexpired;
+use xiaodi\Jwt as Ac;
 
 /**
  * 中间件.

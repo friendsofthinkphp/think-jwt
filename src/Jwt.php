@@ -4,13 +4,13 @@ namespace xiaodi;
 
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Signer;
+use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Token;
-use xiaodi\Exception\Exception;
-use xiaodi\Exception\TokenAlreadyEexpired;
-use xiaodi\Exception\HasLoggedException;
 use think\facade\Cache;
+use xiaodi\Exception\Exception;
+use xiaodi\Exception\HasLoggedException;
+use xiaodi\Exception\TokenAlreadyEexpired;
 
 class Jwt
 {
@@ -46,9 +46,10 @@ class Jwt
     }
 
     /**
-     * 生成 Token
+     * 生成 Token.
      *
      * @param array $claims
+     *
      * @return Token
      */
     public function token(array $claims)
@@ -88,9 +89,10 @@ class Jwt
     }
 
     /**
-     * 解析Token
+     * 解析Token.
      *
      * @param string $token
+     *
      * @return Token
      */
     public function parse(string $token)
@@ -105,9 +107,10 @@ class Jwt
     }
 
     /**
-     * 验证 Token
+     * 验证 Token.
      *
      * @param string $token
+     *
      * @return void
      */
     public function verify(string $token)
@@ -151,28 +154,31 @@ class Jwt
     }
 
     /**
-     * 缓存最新签发时间
+     * 缓存最新签发时间.
+     *
      * @param string|int $jwt_id 唯一标识
-     * @param string $value 签发时间
+     * @param string     $value  签发时间
+     *
      * @return void
      */
     protected function setTimeIssue($jwt_id, $value)
     {
-        $key = $this->options['sso_cache_key'] . '-' . $jwt_id;
+        $key = $this->options['sso_cache_key'].'-'.$jwt_id;
         $ttl = $this->options['expires_at'] + $this->options['not_before'];
 
         Cache::set($key, $value, $ttl);
     }
 
     /**
-     * 获取最新签发时间
-     * 
+     * 获取最新签发时间.
+     *
      * @param string|int $jwt_id 唯一标识
+     *
      * @return string
      */
     protected function getTimeIssue($jwt_id)
     {
-        return Cache::get($this->options['sso_cache_key'] . '-' . $jwt_id);
+        return Cache::get($this->options['sso_cache_key'].'-'.$jwt_id);
     }
 
     public function setToken(Token $token)
@@ -186,7 +192,7 @@ class Jwt
     }
 
     /**
-     * 刷新 Token
+     * 刷新 Token.
      *
      * @return void
      */
@@ -196,7 +202,7 @@ class Jwt
     }
 
     /**
-     * 是否单点登录
+     * 是否单点登录.
      *
      * @return B
      */
@@ -206,7 +212,7 @@ class Jwt
     }
 
     /**
-     * 获取 sso_key
+     * 获取 sso_key.
      *
      * @return void
      */
@@ -216,11 +222,12 @@ class Jwt
         if (empty($key)) {
             throw new Exception('sso_key 未配置');
         }
+
         return $key;
     }
 
     /**
-     * 获取私钥
+     * 获取私钥.
      *
      * @return string|null
      */
@@ -230,7 +237,7 @@ class Jwt
     }
 
     /**
-     * 生成私钥
+     * 生成私钥.
      *
      * @return Key
      */
@@ -245,7 +252,7 @@ class Jwt
     }
 
     /**
-     * 获取加密方式
+     * 获取加密方式.
      *
      * @return Signer|Exception
      */
@@ -257,7 +264,7 @@ class Jwt
             throw new Exception('加密方式未配置.');
         }
 
-        $signer = new $signer;
+        $signer = new $signer();
 
         if (!$signer instanceof Signer) {
             throw new Exception('加密方式错误.');
@@ -275,7 +282,7 @@ class Jwt
     }
 
     /**
-     * 获取用户模型
+     * 获取用户模型.
      *
      * @return void
      */
@@ -302,6 +309,7 @@ class Jwt
             }
             $this->user = $className::find($uid);
         }
+
         return $this->user;
     }
 }
