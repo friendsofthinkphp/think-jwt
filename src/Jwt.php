@@ -205,9 +205,18 @@ class Jwt
      *
      * @return void
      */
-    public function refresh()
+    public function refresh(Token $token)
     {
-        // TODO
+        $claims = $token->getClaims();
+
+        unset($claims['iat']);
+        unset($claims['jti']);
+        unset($claims['nbf']);
+        unset($claims['exp']);
+        unset($claims['iss']);
+        unset($claims['aud']);
+
+        return $this->token($claims);
     }
 
     /**
