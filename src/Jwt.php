@@ -119,7 +119,8 @@ class Jwt
      * 验证 Token.
      *
      * @param string $token
-     * @return boolean
+     *
+     * @return bool
      */
     public function verify(string $token)
     {
@@ -212,7 +213,7 @@ class Jwt
     /**
      * 是否单点登录.
      *
-     * @return boolean
+     * @return bool
      */
     private function sso()
     {
@@ -283,7 +284,8 @@ class Jwt
 
     /**
      * 是否注入用户对象.
-     * @return boolean
+     *
+     * @return bool
      */
     public function injectUser()
     {
