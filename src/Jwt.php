@@ -50,7 +50,7 @@ class Jwt
      *
      * @param array $claims
      *
-     * @return Token
+     * @return string
      */
     public function token(array $claims)
     {
@@ -72,8 +72,7 @@ class Jwt
         $this->builder->setIssuedAt($time)
             ->identifiedBy($uniqid, true)
             ->setNotBefore($not_before)
-            ->setExpiration($expires_at)
-            ->set('time_issue', $time);
+            ->setExpiration($expires_at);
 
         foreach ($claims as $key => $claim) {
             $this->builder->withClaim($key, $claim);
@@ -82,10 +81,20 @@ class Jwt
         $token = $this->builder->getToken($this->getSigner(), $this->makeKey());
 
         if ($this->sso()) {
-            $this->setTimeIssue($uniqid, $time);
+            $this->setCacheIssuedAt($uniqid, $time);
         }
 
-        return $token;
+        return $token->__toString();
+    }
+
+    public function ttl()
+    {
+        return $this->options['expires_at'];
+    }
+
+    public function type()
+    {
+        return 'bearer';
     }
 
     /**
@@ -110,8 +119,7 @@ class Jwt
      * 验证 Token.
      *
      * @param string $token
-     *
-     * @return void
+     * @return boolean
      */
     public function verify(string $token)
     {
@@ -139,10 +147,10 @@ class Jwt
             if ($this->sso()) {
                 $jwt_id = $this->token->getHeader('jti');
                 // 当前Token签发时间
-                $time_issue = $this->token->getClaim('time_issue');
+                $issued_at = $this->token->getClaim('iat');
                 // 最新Token签发时间
-                $cache_time_issue = $this->getTimeIssue($jwt_id);
-                if ($time_issue != $cache_time_issue) {
+                $cache_issued_at = $this->getCacheIssuedAt($jwt_id);
+                if ($issued_at != $cache_issued_at) {
                     throw new HasLoggedException('已在其它终端登录，请重新登录');
                 }
             }
@@ -161,7 +169,7 @@ class Jwt
      *
      * @return void
      */
-    protected function setTimeIssue($jwt_id, $value)
+    protected function setCacheIssuedAt($jwt_id, $value)
     {
         $key = $this->options['sso_cache_key'].'-'.$jwt_id;
         $ttl = $this->options['expires_at'] + $this->options['not_before'];
@@ -176,16 +184,16 @@ class Jwt
      *
      * @return string
      */
-    protected function getTimeIssue($jwt_id)
+    protected function getCacheIssuedAt($jwt_id)
     {
         return Cache::get($this->options['sso_cache_key'].'-'.$jwt_id);
     }
 
-    public function setToken(Token $token)
-    {
-        return $this->token = $token;
-    }
-
+    /**
+     * 获取Token对象
+     *
+     * @return void
+     */
     public function getToken()
     {
         return $this->token;
@@ -204,7 +212,7 @@ class Jwt
     /**
      * 是否单点登录.
      *
-     * @return B
+     * @return boolean
      */
     private function sso()
     {
@@ -214,7 +222,7 @@ class Jwt
     /**
      * 获取 sso_key.
      *
-     * @return void
+     * @return string
      */
     private function ssoKey()
     {
@@ -275,6 +283,7 @@ class Jwt
 
     /**
      * 是否注入用户对象.
+     * @return boolean
      */
     public function injectUser()
     {
@@ -300,16 +309,21 @@ class Jwt
     {
         $uid = $this->token->getClaim($this->ssoKey());
         if ($uid) {
-            $className = $this->options['user_model'];
-            if (empty($className)) {
+            $namespace = $this->options['user_model'];
+            if (empty($namespace)) {
                 throw new Exception('用户模型文件未配置.');
             }
-            if (!class_exists($className)) {
-                throw new Exception('用户模型文件未找到.');
-            }
-            $this->user = $className::find($uid);
+
+            $r = new \ReflectionClass($namespace);
+            $model = $r->newInstance();
+            $this->user = $model->find($uid);
         }
 
         return $this->user;
+    }
+
+    public function getClaims()
+    {
+        return $this->token->getClaims();
     }
 }
