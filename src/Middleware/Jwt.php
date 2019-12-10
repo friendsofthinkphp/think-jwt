@@ -8,7 +8,6 @@ use xiaodi\BearerToken;
 use xiaodi\Exception\HasLoggedException;
 use xiaodi\Exception\TokenAlreadyEexpired;
 use xiaodi\Jwt as Ac;
-
 /**
  * 中间件.
  */
@@ -32,12 +31,12 @@ class Jwt
             $this->jwt->verify($token);
         } catch (HasLoggedException $e) {
             // 已在其它终端登录
-            return Response::create(['message' => $e->getMessage(), 'code' => 50001], 'json', 401);
+            return Response::create(['message' => $e->getMessage(), 'code' => 50401], 'json', 401);
         } catch (TokenAlreadyEexpired $e) {
             // Token已过期
-            return Response::create(['message' => $e->getMessage(), 'code' => 50002], 'json', 401);
+            return Response::create(['message' => $e->getMessage(), 'code' => 50402], 'json', 401);
         } catch (\Exception $e) {
-            return Response::create(['message' => $e->getMessage(), 'code' => 50003], 'json', 500);
+            return Response::create(['message' => $e->getMessage(), 'code' => 50500], 'json', 500);
         }
 
         // 自动注入用户模型
