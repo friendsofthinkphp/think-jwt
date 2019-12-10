@@ -25,29 +25,39 @@ $ php think jwt:make
 
 3. Token 生成
 ```php
-use xiaodi\Jwt;
+use xiaodi\Facade\Jwt;
 
-public function login(Jwt $jwt)
+public function login()
 {
     //...登录判断逻辑
 
-    $token = $jwt->getToken();
+    return json([
+        'token' => Jwt::token(['uid' => 1]),
+        'token_type' => Jwt::type(),
+        'expires_in' => Jwt::ttl()
+    ]);
 }
 ```
 
 4. Token 验证(手动)
 ```php
-use xiaodi\Jwt;
+use xiaodi\Facade\Jwt;
+use xiaodi\Exception\HasLoggedException;
+use xiaodi\Exception\TokenAlreadyEexpired;
 
 class User {
 
-    public function test(Jwt $jwt)
+    public function test()
     {
         try {
-            $jwt->verify($token);
-        } catch (\Exception $e) {
-            var_dump($e->getMessage());
+            Jwt::verify($token);
+        } catch (HasLoggedException $e) {
+            // 已在其它终端登录
+        } catch (TokenAlreadyEexpired $e) {
+            // Token已过期
         }
+        
+        // 验证成功
     }
 }
 
