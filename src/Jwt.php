@@ -8,8 +8,8 @@ use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Token;
 use think\facade\Cache;
-use xiaodi\Exception\JWTException;
 use xiaodi\Exception\HasLoggedException;
+use xiaodi\Exception\JWTException;
 use xiaodi\Exception\TokenAlreadyEexpired;
 
 class Jwt

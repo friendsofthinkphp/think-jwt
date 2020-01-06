@@ -4,8 +4,8 @@ namespace xiaodi\Middleware;
 
 use think\App;
 use xiaodi\BearerToken;
-use xiaodi\Jwt as Ac;
 use xiaodi\Exception\JWTException;
+use xiaodi\Jwt as Ac;
 
 /**
  * 中间件.
