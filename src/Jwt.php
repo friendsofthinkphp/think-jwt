@@ -8,7 +8,7 @@ use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Token;
 use think\facade\Cache;
-use xiaodi\Exception\Exception;
+use xiaodi\Exception\JWTException;
 use xiaodi\Exception\HasLoggedException;
 use xiaodi\Exception\TokenAlreadyEexpired;
 
@@ -64,7 +64,7 @@ class Jwt
             $sso_key = $this->ssoKey();
 
             if (empty($claims[$sso_key])) {
-                throw new Exception('获取sso_key失败');
+                throw new JWTException('获取sso_key失败', 500);
             }
             $uniqid = $claims[$sso_key];
         }
@@ -109,7 +109,7 @@ class Jwt
         try {
             $token = (new Parser())->parse($token);
         } catch (\InvalidArgumentException $e) {
-            throw new Exception('此 Token 解析失败');
+            throw new JWTException('此 Token 解析失败', 500);
         }
 
         return $token;
@@ -130,18 +130,18 @@ class Jwt
         try {
             // 验证密钥是否与创建签名的密钥匹配
             if (false === $this->token->verify($this->getSigner(), $this->makeKey())) {
-                throw new Exception('此 Token 与 密钥不匹配');
+                throw new JWTException('此 Token 与 密钥不匹配', 500);
             }
 
             // 是否可用
             $exp = $this->token->getClaim('nbf');
             if (time() < $exp) {
-                throw new Exception('此 Token 暂未可用');
+                throw new JWTException('此 Token 暂未可用', 500);
             }
 
             // 是否已过期
             if ($this->token->isExpired()) {
-                throw new TokenAlreadyEexpired('Token 已过期');
+                throw new TokenAlreadyEexpired('Token 已过期', 401);
             }
 
             // 单点登录
@@ -152,11 +152,11 @@ class Jwt
                 // 最新Token签发时间
                 $cache_issued_at = $this->getCacheIssuedAt($jwt_id);
                 if ($issued_at != $cache_issued_at) {
-                    throw new HasLoggedException('已在其它终端登录，请重新登录');
+                    throw new HasLoggedException('已在其它终端登录，请重新登录', 401);
                 }
             }
         } catch (\BadMethodCallException $e) {
-            throw new Exception('此 Token 未进行签名');
+            throw new JWTException('此 Token 未进行签名', 500);
         }
 
         return true;
@@ -238,7 +238,7 @@ class Jwt
     {
         $key = $this->options['sso_key'];
         if (empty($key)) {
-            throw new Exception('sso_key 未配置');
+            throw new JWTException('sso_key 未配置', 500);
         }
 
         return $key;
@@ -263,7 +263,7 @@ class Jwt
     {
         $key = $this->getKey();
         if (empty($key)) {
-            throw new Exception('私钥未配置.');
+            throw new JWTException('私钥未配置.', 500);
         }
 
         return new Key($key);
@@ -279,13 +279,13 @@ class Jwt
         $signer = $this->options['signer'];
 
         if (empty($signer)) {
-            throw new Exception('加密方式未配置.');
+            throw new JWTException('加密方式未配置.', 500);
         }
 
         $signer = new $signer();
 
         if (!$signer instanceof Signer) {
-            throw new Exception('加密方式错误.');
+            throw new JWTException('加密方式错误.', 500);
         }
 
         return $signer;
@@ -322,7 +322,7 @@ class Jwt
         if ($uid) {
             $namespace = $this->options['user_model'];
             if (empty($namespace)) {
-                throw new Exception('用户模型文件未配置.');
+                throw new JWTException('用户模型文件未配置.', 500);
             }
 
             $r = new \ReflectionClass($namespace);

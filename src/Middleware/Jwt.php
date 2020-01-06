@@ -3,11 +3,9 @@
 namespace xiaodi\Middleware;
 
 use think\App;
-use think\Response;
 use xiaodi\BearerToken;
-use xiaodi\Exception\HasLoggedException;
-use xiaodi\Exception\TokenAlreadyEexpired;
 use xiaodi\Jwt as Ac;
+use xiaodi\Exception\JWTException;
 
 /**
  * 中间件.
@@ -27,32 +25,24 @@ class Jwt
 
     public function handle($request, \Closure $next)
     {
-        try {
-            $token = $this->bearerToken->getToken();
-            $this->jwt->verify($token);
-        } catch (HasLoggedException $e) {
-            // 已在其它终端登录
-            return Response::create(['message' => $e->getMessage(), 'code' => 50401], 'json', 401);
-        } catch (TokenAlreadyEexpired $e) {
-            // Token已过期
-            return Response::create(['message' => $e->getMessage(), 'code' => 50402], 'json', 401);
-        } catch (\Exception $e) {
-            return Response::create(['message' => $e->getMessage(), 'code' => 50500], 'json', 500);
+        $token = $this->bearerToken->getToken();
+        if (true === $this->jwt->verify($token)) {
+            // 自动注入用户模型
+            if ($this->jwt->injectUser()) {
+                $user = $this->jwt->user();
+                // 路由注入
+                $request->user = $user;
+
+                // 依赖注入
+                $model = $this->jwt->userModel();
+                $this->app->bind($model, $user);
+            }
+
+            $request->jwt = $this->jwt;
+
+            return $next($request);
         }
 
-        // 自动注入用户模型
-        if ($this->jwt->injectUser()) {
-            $user = $this->jwt->user();
-            // 路由注入
-            $request->user = $user;
-
-            // 依赖注入
-            $model = $this->jwt->userModel();
-            $this->app->bind($model, $user);
-        }
-
-        $request->jwt = $this->jwt;
-
-        return $next($request);
+        throw new JWTException('Token 验证不通过', 401);
     }
 }
