@@ -10,4 +10,6 @@ return [
     'signer'      => 'Lcobucci\JWT\Signer\Hmac\Sha256',
     'injectUser'  => false,
     'userModel'   => '',
+    'hasLogged'   => 50401,
+    'tokenAlready' => 50402
 ];
