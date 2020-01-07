@@ -2,7 +2,7 @@
 只支持 `thinkphp 6.0`
 ### 安装
 ```sh
-$ composer require xiaodi/think-jwt:dev-master
+$ composer require xiaodi/think-jwt
 ```
 
 ### 使用
@@ -15,13 +15,18 @@ $ php think jwt:make
 `config/jwt.php`
 
 * `sso` 是否单点登录
-* `sso_key` 用户唯一标识(多点登录 设置失效)
-* `signer_key` 密钥
-* `not_before` 时间前不能使用 默认生成后直接使用
-* `expires_at` Token有效期（秒）
+* `ssoCacheKey` 缓存前缀
+* `ssoKey` 用户唯一标识(多点登录 设置失效)
+* `signerKey` 密钥
+* `notBefore` 时间前不能使用 默认生成后直接使用
+* `expiresAt` Token有效期（秒）
 * `signer` 加密算法
-* `inject_user` 是否注入用户模型
-* `user` 用户模型
+* `injectUser` 是否注入用户模型
+* `userModel` 用户模型
+* `hasLogged` 开启单点登录时，多点登录抛异常code = 50401
+* `tokenAlready` Token过期抛异常code = 50402
+
+`hasLogged`, `tokenAlready` 两个异常都会抛一个HTTP异常 StatusCode = 401
 
 3. Token 生成
 ```php
@@ -58,6 +63,8 @@ class User {
         }
         
         // 验证成功
+        // 如 开启用户注入功能 可获取当前用户信息
+        dump(Jwt::user());
     }
 }
 
