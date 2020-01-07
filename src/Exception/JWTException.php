@@ -6,7 +6,6 @@ use think\Exception\HttpException;
 
 /**
  * 验证异常.
- * 
  */
 class JWTException extends HttpException
 {
