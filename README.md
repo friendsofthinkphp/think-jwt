@@ -26,7 +26,7 @@ $ php think jwt:make
 * `hasLogged` 开启单点登录时，多点登录抛异常code = 50401
 * `tokenAlready` Token过期抛异常code = 50402
 
-`hasLogged`, `tokenAlready` 两个异常都会抛一个HTTP异常 StatusCode = 401
+`xiaodi\Exception\HasLoggedException`, `xiaodi\Exception\TokenAlreadyEexpired` 两个异常都会抛一个HTTP异常 StatusCode = 401
 
 3. Token 生成
 ```php
