@@ -35,7 +35,7 @@ class Jwt
         $this->builder = $builder;
 
         $config = config('jwt', []);
-        foreach($config as $key=>$v) {
+        foreach ($config as $key=> $v) {
             $this->$key = $v;
         }
     }
@@ -82,12 +82,12 @@ class Jwt
 
     public function notBefore()
     {
-        return (int)$this->notBefore;
+        return (int) $this->notBefore;
     }
 
     public function ttl()
     {
-        return (int)$this->expiresAt;
+        return (int) $this->expiresAt;
     }
 
     public function type()
@@ -100,7 +100,8 @@ class Jwt
         return $this->tokenAlready;
     }
 
-    public function getHasLoggedCode() {
+    public function getHasLoggedCode()
+    {
         return $this->hasLogged;
     }
 
