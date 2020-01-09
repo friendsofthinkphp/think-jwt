@@ -2,7 +2,7 @@
 
 namespace xiaodi\Exception;
 
-use think\Exception\HttpException;
+use think\exception\HttpException;
 
 /**
  * 验证异常.
