@@ -3,7 +3,7 @@
 namespace xiaodi;
 
 use think\App;
-use xiaodi\Exception\Exception;
+use xiaodi\Exception\JwtException;
 
 class BearerToken
 {
@@ -19,7 +19,7 @@ class BearerToken
         $authorization = $this->request->header('authorization');
 
         if (strpos($authorization, 'Bearer ') !== 0) {
-            throw new Exception('获取Token失败.');
+            throw new JwtException('获取Token失败.');
         }
 
         return substr($authorization, 7);
