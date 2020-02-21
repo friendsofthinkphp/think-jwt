@@ -8,6 +8,7 @@ return [
     'notBefore'    => 0,
     'expiresAt'    => 3600,
     'signer'       => 'Lcobucci\JWT\Signer\Hmac\Sha256',
+    'type'         => 'Bearer',
     'injectUser'   => false,
     'userModel'    => '',
     'hasLogged'    => 50401,
