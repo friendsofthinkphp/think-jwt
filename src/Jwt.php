@@ -134,17 +134,17 @@ class Jwt
         switch ($this->type){
             case 'Bearer': {
                 $authorization = request()->header('authorization');
-                if (strpos($authorization, 'Bearer ') !== 0) {
-                    throw new JwtException('获取Token失败.',500);
-                }
-                $token = substr($authorization, 7);
+                $token = strpos($authorization, 'Bearer ') !== 0?false:substr($authorization, 7);
             };break;
             case 'Cookie':$token = Cookie::get('token'); break;
             case 'Url': $token = request()->param('token');break;
             default:$token = request()->param('token');break;
         }
-        return $token;
 
+        if (! $token) {
+            throw new JwtException('获取Token失败.',500);
+        }
+        return $token;
     }
 
     /**
