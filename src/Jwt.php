@@ -374,6 +374,15 @@ class Jwt
         return $this->user;
     }
 
+    /**
+     * 获取用户uid
+     * @return mixed
+     */
+    public function userId(){
+        $uid = $this->token->getClaim($this->ssoKey());
+        return $uid;
+    }
+
     public function getClaims()
     {
         return $this->token->getClaims();
