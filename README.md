@@ -21,6 +21,7 @@ $ php think jwt:make
 * `notBefore` 时间前不能使用 默认生成后直接使用
 * `expiresAt` Token有效期（秒）
 * `signer` 加密算法
+* `type`  获取 Token 途径
 * `injectUser` 是否注入用户模型
 * `userModel` 用户模型
 * `hasLogged` 开启单点登录时，多点登录抛异常code = 50401
@@ -92,4 +93,59 @@ class UserController {
     }
 }
 
+```
+
+6. 自动获取验证
+
+支持以下方式自动获取
+
+* `Bearer`
+* `Cookie`
+* `Url`
+
+赋值方式
+
+类型 | 途径 | 标识 |
+:-: | :-: | :-: | 
+Bearer | Authorization | Bearer |
+Cookie | Cookie| token |
+Url | Request | token |
+
+```php
+# config/jwt.php
+
+<?php
+
+return [
+
+    // ...其它配置
+    'type' => 'Bearer',
+    
+    // 'type' => 'Cookie',
+    // 'type' => 'Url',
+];
+```
+
+```php
+# UserController.php
+
+use xiaodi\Facade\Jwt;
+
+class User
+{
+    public function index()
+    {
+        // 自动获取并验证
+        try {
+            Jwt::verify();
+        } catch (HasLoggedException $e) {
+            // 已在其它终端登录
+        } catch (TokenAlreadyEexpired $e) {
+            // Token已过期
+        }
+        
+        $uid = Jwt::userId();
+    }
+
+}
 ```
