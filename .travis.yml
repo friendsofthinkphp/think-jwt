@@ -1,0 +1,15 @@
+sudo: true
+
+language: php
+
+php:
+  - 7.1.9
+
+cache:
+  directories:
+    - vendor
+    - "$HOME/.composer/cache"
+    
+script:
+  - composer install --prefer-dist --no-interaction --no-suggest --prefer-stable
+  - phpunit

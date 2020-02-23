@@ -7,20 +7,35 @@
         "thinkphp"
     ],
     "description": "ThinkPHP Jwt Component",
+    "minimum-stability": "dev",
     "authors": [
         {
             "name": "xiaodi",
             "email": "liangjinbiao@live.com"
         }
     ],
-    "minimum-stability": "dev",
     "require": {
+        "php": ">=7.1.0",
+        "ext-json": "*",
+        "ext-mbstring": "*",
         "lcobucci/jwt": "^3.3",
-        "nette/php-generator": "^3.2"
+        "nette/php-generator": "^3.2",
+        "topthink/framework": "^6.0.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.2",
+        "mockery/mockery": "^1.2",
+        "phpstan/phpstan": "^0.12.0",
+        "friendsofphp/php-cs-fixer": "^2.15"
     },
     "autoload": {
         "psr-4": {
             "xiaodi\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "xiaodi\\Tests\\": "tests/"
         }
     },
     "extra": {
@@ -35,5 +50,10 @@
         "think-config": {
             "jwt": "config/config.php"
         }
+    },
+    "scripts": {
+        "coverage": "vendor/bin/phpunit --coverage-html=coverage",
+        "test": "vendor/bin/phpunit",
+        "phpcs": "vendor/bin/php-cs-fixer fix"
     }
 }

@@ -9,38 +9,46 @@ use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Token;
 use think\facade\Cache;
 use think\facade\Cookie;
+use think\facade\Config;
+use xiaodi\Exception\JWTInvalidArgumentException;
 use xiaodi\Exception\HasLoggedException;
 use xiaodi\Exception\JWTException;
 use xiaodi\Exception\TokenAlreadyEexpired;
+use think\App;
 
 class Jwt
 {
     private $user;
     private $token;
 
-    public $sso = true;
-    public $ssoCacheKey = 'jwt-auth-user';
-    public $ssoKey = 'uid';
-    public $signerKey;
-    public $notBefore = 0;
-    public $expiresAt = 3600;
-    public $signer = \Lcobucci\JWT\Signer\Hmac\Sha256::class;
+    private $sso = false;
+    private $ssoCacheKey = 'jwt-auth-user';
+    private $ssoKey = 'uid';
+    private $signerKey;
+    private $notBefore = 0;
+    private $expiresAt = 3600;
+    private $signer = \Lcobucci\JWT\Signer\Hmac\Sha256::class;
 
-    /**token传参方式 Bearer Cookie  Url**/
-    public $type = 'Bearer';
-    public $injectUser = false;
-    public $userModel;
-    public $hasLogged = 50401;
-    public $tokenAlready = 50402;
+    private $type = 'Bearer';
+    private $injectUser = false;
+    private $userModel;
+    private $hasLogged = 50401;
+    private $tokenAlready = 50402;
 
-    public function __construct(Builder $builder)
+    public function __construct(App $app)
     {
-        $this->builder = $builder;
+        $this->app = $app;
+        $this->builder = new Builder;
 
-        $config = config('jwt', []);
-        foreach ($config as $key=> $v) {
+        $config = $this->getConfig();
+        foreach ($config as $key => $v) {
             $this->$key = $v;
         }
+    }
+
+    public function getConfig()
+    {
+        return $this->app->config->get('jwt');
     }
 
     /**
@@ -48,7 +56,7 @@ class Jwt
      *
      * @param array $claims
      *
-     * @return string
+     * @return \Lcobucci\JWT\Token
      */
     public function token(array $claims)
     {
@@ -60,7 +68,7 @@ class Jwt
             $sso_key = $this->ssoKey();
 
             if (empty($claims[$sso_key])) {
-                throw new JWTException("未设置 \$claims['{$this->ssoKey}']值", 500);
+                throw new JWTInvalidArgumentException("未设置 \$claims['{$this->ssoKey}']值", 500);
             }
             $uniqid = $claims[$sso_key];
         }
@@ -80,32 +88,7 @@ class Jwt
             $this->setCacheIssuedAt($uniqid, $time);
         }
 
-        return $token->__toString();
-    }
-
-    public function notBefore()
-    {
-        return (int) $this->notBefore;
-    }
-
-    public function ttl()
-    {
-        return (int) $this->expiresAt;
-    }
-
-    public function type()
-    {
-        return $this->type;
-    }
-
-    public function getAlreadyCode()
-    {
-        return $this->tokenAlready;
-    }
-
-    public function getHasLoggedCode()
-    {
-        return $this->hasLogged;
+        return $token;
     }
 
     /**
@@ -120,7 +103,7 @@ class Jwt
         try {
             $token = (new Parser())->parse($token);
         } catch (\InvalidArgumentException $e) {
-            throw new JWTException('此 Token 解析失败', 500);
+            throw new JWTInvalidArgumentException('此 Token 解析失败', 500);
         }
 
         return $token;
@@ -136,17 +119,17 @@ class Jwt
         switch ($this->type) {
             case 'Bearer':
                 $authorization = request()->header('authorization');
-                $token = strpos($authorization, 'Bearer ') !== 0 ? false : substr($authorization, 7);
-              break;
+                $token = strpos($authorization, 'Bearer ') !== 0 ? false : substr($authorization, 7);;
+                break;
             case 'Cookie':
                 $token = Cookie::get('token');
-              break;
+                break;
             case 'Url':
                 $token = request()->param('token');
-              break;
+                break;
             default:
                 $token = request()->param('token');
-              break;
+                break;
         }
 
         if (!$token) {
@@ -220,9 +203,9 @@ class Jwt
      *
      * @return void
      */
-    protected function setCacheIssuedAt($jwt_id, $value)
+    public function setCacheIssuedAt($jwt_id, $value)
     {
-        $key = $this->ssoCacheKey.'-'.$jwt_id;
+        $key = $this->ssoCacheKey . '-' . $jwt_id;
         $ttl = $this->ttl() + $this->notBefore();
 
         Cache::set($key, $value, $ttl);
@@ -237,13 +220,13 @@ class Jwt
      */
     protected function getCacheIssuedAt($jwt_id)
     {
-        return Cache::get($this->ssoCacheKey.'-'.$jwt_id);
+        return Cache::get($this->ssoCacheKey . '-' . $jwt_id);
     }
 
     /**
-     * 获取Token对象
+     * 获取 Token 对象.
      *
-     * @return void
+     * @return \Lcobucci\JWT\Token
      */
     public function getToken()
     {
@@ -253,7 +236,7 @@ class Jwt
     /**
      * 刷新 Token.
      *
-     * @return void
+     * @return \Lcobucci\JWT\Token
      */
     public function refresh(Token $token)
     {
@@ -267,41 +250,6 @@ class Jwt
         unset($claims['aud']);
 
         return $this->token($claims);
-    }
-
-    /**
-     * 是否单点登录.
-     *
-     * @return bool
-     */
-    private function sso()
-    {
-        return $this->sso;
-    }
-
-    /**
-     * 获取 sso_key.
-     *
-     * @return string
-     */
-    private function ssoKey()
-    {
-        $key = $this->ssoKey;
-        if (empty($key)) {
-            throw new JWTException('sso_key 未配置', 500);
-        }
-
-        return $key;
-    }
-
-    /**
-     * 获取私钥.
-     *
-     * @return string|null
-     */
-    private function getSignerKey()
-    {
-        return $this->signerKey;
     }
 
     /**
@@ -329,7 +277,7 @@ class Jwt
         $signer = $this->signer;
 
         if (empty($signer)) {
-            throw new JWTException('加密方式未配置.', 500);
+            throw new JWTInvalidArgumentException('加密方式未配置.', 500);
         }
 
         $signer = new $signer();
@@ -339,6 +287,16 @@ class Jwt
         }
 
         return $signer;
+    }
+
+    /**
+     * 设置加密方式.
+     *
+     * @return void
+     */
+    public function setSigner($signer)
+    {
+        $this->signer = $signer;
     }
 
     /**
@@ -372,7 +330,7 @@ class Jwt
         if ($uid) {
             $namespace = $this->userModel();
             if (empty($namespace)) {
-                throw new JWTException('用户模型文件未配置.', 500);
+                throw new JWTInvalidArgumentException('用户模型文件未配置.', 500);
             }
 
             $r = new \ReflectionClass($namespace);
@@ -398,5 +356,115 @@ class Jwt
     public function getClaims()
     {
         return $this->token->getClaims();
+    }
+
+    public function notBefore()
+    {
+        return (int) $this->notBefore;
+    }
+
+    public function setNotBefore($value)
+    {
+        $this->notBefore = (int) $value;
+    }
+
+    public function ttl()
+    {
+        return (int) $this->expiresAt;
+    }
+
+    public function setTTL(int $value)
+    {
+        $this->ttl = $value;
+    }
+
+    public function type()
+    {
+        return $this->type;
+    }
+
+    public function setType($type)
+    {
+        return $this->type = $type;
+    }
+
+    public function getAlreadyCode()
+    {
+        return $this->tokenAlready;
+    }
+
+    public function getHasLoggedCode()
+    {
+        return $this->hasLogged;
+    }
+
+    public function setExpiresAt($value)
+    {
+        $this->expiresAt = (int) $value;
+    }
+
+    /**
+     * 是否单点登录.
+     *
+     * @return bool
+     */
+    private function sso()
+    {
+        return $this->sso;
+    }
+
+    /**
+     * 设置单点登录.
+     *
+     * @return bool
+     */
+    public function setSso($bool)
+    {
+        return $this->sso = $bool;
+    }
+
+    /**
+     * 获取 sso_key.
+     *
+     * @return string
+     */
+    public function ssoKey()
+    {
+        $key = $this->ssoKey;
+        if (empty($key)) {
+            throw new JWTInvalidArgumentException('sso_key 未配置', 500);
+        }
+
+        return $key;
+    }
+
+    /**
+     * 设置 sso_key.
+     *
+     * @return string
+     */
+    public function setSSOKey($key)
+    {
+        $this->ssoKey = $key;
+    }
+
+    /**
+     * 获取私钥.
+     *
+     * @return string|null
+     */
+    public function getSignerKey()
+    {
+        return $this->signerKey;
+    }
+
+    /**
+     * 设置私钥.
+     *
+     * @return void
+     */
+    public function setSignerKey($key)
+    {
+        return $this->signerKey = $key;
     }
 }
