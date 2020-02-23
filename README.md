@@ -3,7 +3,6 @@
 [![Build Status](https://travis-ci.org/edenleung/think-jwt.svg?branch=master)](https://travis-ci.org/edenleung/think-jwt)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/edenleung/think-jwt/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/edenleung/think-jwt/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/edenleung/think-jwt/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/edenleung/think-jwt/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/edenleung/think-jwt/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/edenleung/think-jwt/?branch=master)
 
 只支持 `thinkphp 6.0`
 ### 安装
