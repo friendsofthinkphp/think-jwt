@@ -11,5 +11,5 @@ cache:
     - "$HOME/.composer/cache"
     
 script:
-  - composer install --prefer-dist --no-interaction --no-suggest --prefer-stable
+  - composer install --prefer-dist --no-interaction --no-suggest
   - phpunit
