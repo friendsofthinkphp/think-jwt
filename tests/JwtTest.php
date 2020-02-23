@@ -2,15 +2,15 @@
 
 namespace xiaodi\Tests;
 
-use xiaodi\Jwt;
-use think\facade\Config;
-use Mockery as m;
 use Lcobucci\JWT\Token;
+use Mockery as m;
+use think\App;
+use think\Container;
+use think\facade\Config;
 use xiaodi\Exception\JWTException;
 use xiaodi\Exception\JWTInvalidArgumentException;
 use xiaodi\Exception\TokenAlreadyEexpired;
-use think\Container;
-use think\App;
+use xiaodi\Jwt;
 
 class JwtTest extends TestCase
 {
@@ -59,7 +59,7 @@ class JwtTest extends TestCase
     }
 
     /**
-     * 测试 配置
+     * 测试 配置.
      *
      * @return void
      */

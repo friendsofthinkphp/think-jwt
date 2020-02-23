@@ -7,14 +7,13 @@ use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Token;
+use think\App;
 use think\facade\Cache;
 use think\facade\Cookie;
-use think\facade\Config;
-use xiaodi\Exception\JWTInvalidArgumentException;
 use xiaodi\Exception\HasLoggedException;
 use xiaodi\Exception\JWTException;
+use xiaodi\Exception\JWTInvalidArgumentException;
 use xiaodi\Exception\TokenAlreadyEexpired;
-use think\App;
 
 class Jwt
 {
@@ -38,7 +37,7 @@ class Jwt
     public function __construct(App $app)
     {
         $this->app = $app;
-        $this->builder = new Builder;
+        $this->builder = new Builder();
 
         $config = $this->getConfig();
         foreach ($config as $key => $v) {
@@ -119,7 +118,7 @@ class Jwt
         switch ($this->type) {
             case 'Bearer':
                 $authorization = request()->header('authorization');
-                $token = strpos($authorization, 'Bearer ') !== 0 ? false : substr($authorization, 7);;
+                $token = strpos($authorization, 'Bearer ') !== 0 ? false : substr($authorization, 7);
                 break;
             case 'Cookie':
                 $token = Cookie::get('token');
@@ -205,7 +204,7 @@ class Jwt
      */
     public function setCacheIssuedAt($jwt_id, $value)
     {
-        $key = $this->ssoCacheKey . '-' . $jwt_id;
+        $key = $this->ssoCacheKey.'-'.$jwt_id;
         $ttl = $this->ttl() + $this->notBefore();
 
         Cache::set($key, $value, $ttl);
@@ -220,7 +219,7 @@ class Jwt
      */
     protected function getCacheIssuedAt($jwt_id)
     {
-        return Cache::get($this->ssoCacheKey . '-' . $jwt_id);
+        return Cache::get($this->ssoCacheKey.'-'.$jwt_id);
     }
 
     /**
