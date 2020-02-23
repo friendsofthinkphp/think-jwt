@@ -136,10 +136,17 @@ class Jwt
         switch ($this->type) {
             case 'Bearer':
                 $authorization = request()->header('authorization');
-                $token = strpos($authorization, 'Bearer ') !== 0 ? false : substr($authorization, 7); break;
-            case 'Cookie':$token = Cookie::get('token'); break;
-            case 'Url': $token = request()->param('token'); break;
-            default:$token = request()->param('token'); break;
+                $token = strpos($authorization, 'Bearer ') !== 0 ? false : substr($authorization, 7);
+              break;
+            case 'Cookie':
+                $token = Cookie::get('token');
+              break;
+            case 'Url':
+                $token = request()->param('token');
+              break;
+            default:
+                $token = request()->param('token');
+              break;
         }
 
         if (!$token) {
