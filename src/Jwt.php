@@ -8,6 +8,7 @@ use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Key;
 use Lcobucci\JWT\Token;
 use think\facade\Cache;
+use think\facade\Cookie;
 use xiaodi\Exception\HasLoggedException;
 use xiaodi\Exception\JWTException;
 use xiaodi\Exception\TokenAlreadyEexpired;
@@ -24,6 +25,8 @@ class Jwt
     public $notBefore = 0;
     public $expiresAt = 3600;
     public $signer = \Lcobucci\JWT\Signer\Hmac\Sha256::class;
+
+    /**token传参方式 Bearer Cookie  Url**/
     public $type = 'Bearer';
     public $injectUser = false;
     public $userModel;
@@ -124,14 +127,40 @@ class Jwt
     }
 
     /**
+     * 根据$type获取请求token
+     * @return false|mixed|string
+     */
+    public function getRequestToken(){
+        switch ($this->type){
+            case 'Bearer': {
+                $authorization = request()->header('authorization');
+                $token = strpos($authorization, 'Bearer ') !== 0?false:substr($authorization, 7);
+            };break;
+            case 'Cookie':$token = Cookie::get('token'); break;
+            case 'Url': $token = request()->param('token');break;
+            default:$token = request()->param('token');break;
+        }
+
+        if (! $token) {
+            throw new JwtException('获取Token失败.',500);
+        }
+        return $token;
+    }
+
+    /**
      * 验证 Token.
      *
      * @param string $token
      *
      * @return bool
      */
-    public function verify(string $token)
+    public function verify(string $token='')
     {
+        // 自动获取请求token
+        if ($token==''){
+            $token = $this->getRequestToken();
+        }
+
         // 解析Token
         $this->token = $this->parse($token);
 
@@ -343,6 +372,15 @@ class Jwt
         }
 
         return $this->user;
+    }
+
+    /**
+     * 获取用户uid
+     * @return mixed
+     */
+    public function userId(){
+        $uid = $this->token->getClaim($this->ssoKey());
+        return $uid;
     }
 
     public function getClaims()
