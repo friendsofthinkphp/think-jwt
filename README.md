@@ -107,7 +107,7 @@ class UserController {
 
 类型 | 途径 | 标识 |
 :-: | :-: | :-: | 
-Header | Authorization | Bearer |
+Bearer | Authorization | Bearer |
 Cookie | Cookie| token |
 Url | Request | token |
 
@@ -119,7 +119,7 @@ Url | Request | token |
 return [
 
     // ...其它配置
-    'type' => 'Header',
+    'type' => 'Bearer',
     
     // 'type' => 'Cookie',
     // 'type' => 'Url',
