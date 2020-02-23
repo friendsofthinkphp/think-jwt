@@ -127,23 +127,25 @@ class Jwt
     }
 
     /**
-     * 根据$type获取请求token
+     * 根据$type获取请求token.
+     *
      * @return false|mixed|string
      */
-    public function getRequestToken(){
-        switch ($this->type){
-            case 'Bearer': {
+    public function getRequestToken()
+    {
+        switch ($this->type) {
+            case 'Bearer':
                 $authorization = request()->header('authorization');
-                $token = strpos($authorization, 'Bearer ') !== 0?false:substr($authorization, 7);
-            };break;
+                $token = strpos($authorization, 'Bearer ') !== 0 ? false : substr($authorization, 7); ; break;
             case 'Cookie':$token = Cookie::get('token'); break;
-            case 'Url': $token = request()->param('token');break;
-            default:$token = request()->param('token');break;
+            case 'Url': $token = request()->param('token'); break;
+            default:$token = request()->param('token'); break;
         }
 
-        if (! $token) {
-            throw new JwtException('获取Token失败.',500);
+        if (!$token) {
+            throw new JwtException('获取Token失败.', 500);
         }
+
         return $token;
     }
 
@@ -154,10 +156,10 @@ class Jwt
      *
      * @return bool
      */
-    public function verify(string $token='')
+    public function verify(string $token = '')
     {
         // 自动获取请求token
-        if ($token==''){
+        if ($token == '') {
             $token = $this->getRequestToken();
         }
 
@@ -375,11 +377,14 @@ class Jwt
     }
 
     /**
-     * 获取用户uid
+     * 获取用户uid.
+     *
      * @return mixed
      */
-    public function userId(){
+    public function userId()
+    {
         $uid = $this->token->getClaim($this->ssoKey());
+
         return $uid;
     }
 
