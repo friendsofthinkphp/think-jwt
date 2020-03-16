@@ -2,12 +2,11 @@
 
 namespace xiaodi;
 
-use think\App;
 use Lcobucci\JWT\Token;
+use think\App;
 
 /**
- * 黑名单
- *
+ * 黑名单.
  */
 class Blacklist
 {
@@ -25,7 +24,7 @@ class Blacklist
     }
 
     /**
-     * 获取 缓存驱动
+     * 获取 缓存驱动.
      *
      * @return void
      */
@@ -35,9 +34,10 @@ class Blacklist
     }
 
     /**
-     * 加入黑名单
+     * 加入黑名单.
      *
      * @param Token $token
+     *
      * @return void
      */
     public function push(Token $token)
@@ -45,25 +45,26 @@ class Blacklist
         if (false === $this->has($token)) {
             $claims = $token->getClaims();
             $exp = $claims['exp']->getValue() - time();
-            $this->store->push($this->cacheName, (string)$token, $exp);
+            $this->store->push($this->cacheName, (string) $token, $exp);
         }
     }
 
     /**
-     * 是否存在黑名单
+     * 是否存在黑名单.
      *
      * @param Token $token
-     * @return boolean
+     *
+     * @return bool
      */
     public function has(Token $token)
     {
         $blacklist = $this->getAll();
-        
-        return in_array((string)$token, $blacklist);
+
+        return in_array((string) $token, $blacklist);
     }
 
     /**
-     * 获取所有黑名单
+     * 获取所有黑名单.
      *
      * @return array
      */

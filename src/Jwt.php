@@ -2,16 +2,15 @@
 
 namespace xiaodi;
 
-use think\App;
-use Lcobucci\JWT\Token;
-use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Builder;
+use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Key;
-use xiaodi\Blacklist;
-use xiaodi\Exception\JWTException;
+use Lcobucci\JWT\Token;
+use think\App;
 use xiaodi\Exception\HasLoggedException;
-use xiaodi\Exception\TokenAlreadyEexpired;
+use xiaodi\Exception\JWTException;
 use xiaodi\Exception\JWTInvalidArgumentException;
+use xiaodi\Exception\TokenAlreadyEexpired;
 
 class Jwt
 {
@@ -175,7 +174,7 @@ class Jwt
     }
 
     /**
-     * 效验 Token
+     * 效验 Token.
      *
      * @return void
      */
@@ -211,6 +210,7 @@ class Jwt
      * 刷新 Token.
      *
      * @param Token $token
+     *
      * @return Token
      */
     public function refresh(Token $token)
@@ -234,6 +234,7 @@ class Jwt
      * 删除 Token.
      *
      * @param Token $token
+     *
      * @return void
      */
     public function remove(Token $token)
