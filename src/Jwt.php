@@ -19,6 +19,8 @@ class Jwt
 
     private $blacklist;
 
+    private $user;
+
     use \xiaodi\Traits\Jwt;
 
     public function __construct(App $app, Blacklist $blacklist)
@@ -34,7 +36,7 @@ class Jwt
     }
 
     /**
-     * 获取jwt配置
+     * 获取jwt配置.
      *
      * @return void
      */
@@ -147,7 +149,11 @@ class Jwt
             $this->validateToken();
             // 是否已过期
             if ($this->token->isExpired()) {
-                throw new TokenAlreadyEexpired('Token 已过期', 401, $this->getAlreadyCode());
+                if (time() < ($this->token->getClaim('iat') + $this->refreshExp())) {
+                    throw new TokenAlreadyEexpired('Token 已过期，请重新刷新', 401, $this->getAlreadyCode());
+                } else {
+                    throw new TokenAlreadyEexpired('Token 刷新时间已过，请重新登录', 401, $this->getReloginCode());
+                }
             }
 
             // 单点登录
@@ -158,7 +164,7 @@ class Jwt
                 // 最新Token签发时间
                 $cache_issued_at = $this->getCacheIssuedAt($jwt_id);
                 if ($issued_at != $cache_issued_at) {
-                    throw new HasLoggedException('已在其它终端登录，请重新登录', 401, $this->getHasLoggedCode());
+                    throw new HasLoggedException('此账号已在其它终端登录，请重新登录', 401, $this->getHasLoggedCode());
                 }
             }
         } catch (\BadMethodCallException $e) {
@@ -209,8 +215,8 @@ class Jwt
      */
     public function refresh(Token $token)
     {
-        // 加入黑名单
-        $this->blacklist->push($token);
+        // 移除Token
+        $this->remove($token);
 
         $claims = $token->getClaims();
 
@@ -248,5 +254,75 @@ class Jwt
         }
 
         return new Key($key);
+    }
+
+    /**
+     * 缓存最新签发时间.
+     *
+     * @param string|int $jwt_id 唯一标识
+     * @param string     $value  签发时间
+     *
+     * @return void
+     */
+    public function setCacheIssuedAt($jwt_id, $value)
+    {
+        $key = $this->ssoCachePrefix . '-' . $jwt_id;
+        $ttl = $this->ttl() + $this->notBefore();
+
+        $this->app->cache->set($key, $value, $ttl);
+    }
+
+    /**
+     * 获取最新签发时间.
+     *
+     * @param string|int $jwt_id 唯一标识
+     *
+     * @return string
+     */
+    protected function getCacheIssuedAt($jwt_id)
+    {
+        return $this->app->cache->get($this->ssoCachePrefix . '-' . $jwt_id);
+    }
+
+    /**
+     * 是否注入用户对象.
+     *
+     * @return bool
+     */
+    public function injectUser()
+    {
+        return $this->injectUser;
+    }
+
+    /**
+     * 获取用户模型.
+     *
+     * @return void
+     */
+    public function userModel()
+    {
+        return $this->userModel;
+    }
+
+    /**
+     * 获取用户模型对象
+     *
+     * @return void
+     */
+    public function user()
+    {
+        $uid = $this->token->getClaim($this->ssoKey());
+        if ($uid) {
+            $namespace = $this->userModel();
+            if (empty($namespace)) {
+                throw new JWTInvalidArgumentException('用户模型文件未配置.', 500);
+            }
+
+            $r = new \ReflectionClass($namespace);
+            $model = $r->newInstance();
+            $this->user = $model->find($uid);
+        }
+
+        return $this->user;
     }
 }

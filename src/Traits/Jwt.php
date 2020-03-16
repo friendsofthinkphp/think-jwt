@@ -15,13 +15,31 @@ trait Jwt
     private $signerKey;
     private $notBefore = 0;
     private $expiresAt = 3600;
+    private $refreshTTL = 7200;
     private $signer = \Lcobucci\JWT\Signer\Hmac\Sha256::class;
 
-    private $type = 'Bearer';
+    private $type = 'Header';
     private $injectUser = false;
     private $userModel;
+    
     private $hasLogged = 50401;
     private $tokenAlready = 50402;
+    private $relogin = 50400;
+
+    public function refreshTTL()
+    {
+        return (int) $this->refreshTTL;
+    }
+
+    public function setRefreshTTL($value)
+    {
+        $this->refreshTTL = (int) $value;
+    }
+
+    public function getReloginCode()
+    {
+        return (int) $this->relogin;
+    }
 
     public function notBefore()
     {
@@ -43,7 +61,7 @@ trait Jwt
         $this->ttl = $value;
     }
 
-    public function getType()
+    public function type()
     {
         return $this->type;
     }

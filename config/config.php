@@ -7,6 +7,7 @@ return [
     'signerKey'    => '',
     'notBefore'    => 0,
     'expiresAt'    => 3600,
+    'refreshExp'   => 7200,
     'signer'       => 'Lcobucci\JWT\Signer\Hmac\Sha256',
     'type'         => 'Header',
     'injectUser'   => false,
