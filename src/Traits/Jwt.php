@@ -21,7 +21,7 @@ trait Jwt
     private $type = 'Header';
     private $injectUser = false;
     private $userModel;
-    
+
     private $hasLogged = 50401;
     private $tokenAlready = 50402;
     private $relogin = 50400;

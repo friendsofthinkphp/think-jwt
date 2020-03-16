@@ -267,7 +267,7 @@ class Jwt
      */
     public function setCacheIssuedAt($jwt_id, $value)
     {
-        $key = $this->ssoCachePrefix . '-' . $jwt_id;
+        $key = $this->ssoCachePrefix.'-'.$jwt_id;
         $ttl = $this->ttl() + $this->notBefore();
 
         $this->app->cache->set($key, $value, $ttl);
@@ -282,7 +282,7 @@ class Jwt
      */
     protected function getCacheIssuedAt($jwt_id)
     {
-        return $this->app->cache->get($this->ssoCachePrefix . '-' . $jwt_id);
+        return $this->app->cache->get($this->ssoCachePrefix.'-'.$jwt_id);
     }
 
     /**
