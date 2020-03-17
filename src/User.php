@@ -29,9 +29,9 @@ class User
     }
 
     /**
-     * 是否开启注入
+     * 是否开启注入.
      *
-     * @return boolean
+     * @return bool
      */
     public function hasInject()
     {
@@ -39,7 +39,7 @@ class User
     }
 
     /**
-     * 获取 用户模型文件
+     * 获取 用户模型文件.
      *
      * @return string
      */
@@ -49,7 +49,7 @@ class User
     }
 
     /**
-     * 获取 具用登录信息的用户模型
+     * 获取 具用登录信息的用户模型.
      *
      * @return Model
      */
@@ -66,7 +66,7 @@ class User
         }
 
         $uid = $token->getClaim($this->app->jwt->getUniqidKey());
-        
+
         $namespace = $this->getModel();
         $model = new $namespace();
         $user = $model->findOrFail($uid);

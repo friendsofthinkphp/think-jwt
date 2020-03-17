@@ -92,10 +92,10 @@ class Jwt
     }
 
     /**
-     * 
-     * 生成 Token ID
+     * 生成 Token ID.
+     *
      * @param array $claims
-     * 
+     *
      * @return string
      */
     private function makeTokenId(array $claims): string

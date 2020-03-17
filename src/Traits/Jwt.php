@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace xiaodi\JWTAuth\Traits;
 
 use Lcobucci\JWT\Signer;
-use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Signer\Key;
+use Lcobucci\JWT\Token;
 use xiaodi\JWTAuth\Exception\JWTException;
 use xiaodi\JWTAuth\Exception\JWTInvalidArgumentException;
 
@@ -29,7 +29,7 @@ trait Jwt
     private $aud;
 
     /**
-     * 获取 Token获取途径
+     * 获取 Token获取途径.
      *
      * @return string
      */
@@ -39,7 +39,7 @@ trait Jwt
     }
 
     /**
-     * 设置 Token获取途径
+     * 设置 Token获取途径.
      *
      * @return void
      */
@@ -49,7 +49,7 @@ trait Jwt
     }
 
     /**
-     * 获取 用户表唯一标识值名
+     * 获取 用户表唯一标识值名.
      *
      * @return void
      */
@@ -59,7 +59,7 @@ trait Jwt
     }
 
     /**
-     * 获取 刷新Token TTL
+     * 获取 刷新Token TTL.
      *
      * @return void
      */
@@ -69,9 +69,10 @@ trait Jwt
     }
 
     /**
-     * 设置 刷新Token TTL
+     * 设置 刷新Token TTL.
      *
      * @param [type] $value
+     *
      * @return void
      */
     public function setRefreshTTL($value)
@@ -80,7 +81,6 @@ trait Jwt
     }
 
     /**
-     *
      * @return void
      */
     public function getReloginCode()
@@ -102,6 +102,7 @@ trait Jwt
      * 设置 检测延迟
      *
      * @param [type] $value
+     *
      * @return void
      */
     public function setNotBefore($value)
@@ -110,7 +111,7 @@ trait Jwt
     }
 
     /**
-     * 获取  TTl
+     * 获取  TTl.
      *
      * @return void
      */
@@ -120,9 +121,10 @@ trait Jwt
     }
 
     /**
-     * 设置 TTL
+     * 设置 TTL.
      *
-     * @param integer $value
+     * @param int $value
+     *
      * @return void
      */
     public function setTTL(int $value)
@@ -131,7 +133,6 @@ trait Jwt
     }
 
     /**
-     *
      * @return void
      */
     public function getAlreadyCode()
@@ -140,7 +141,6 @@ trait Jwt
     }
 
     /**
-     *
      * @return void
      */
     public function getHasLoggedCode()
@@ -152,6 +152,7 @@ trait Jwt
      * 设置有效期
      *
      * @param [type] $value
+     *
      * @return void
      */
     public function setExpiresAt($value)
@@ -237,7 +238,7 @@ trait Jwt
     }
 
     /**
-     * 获取 发布端 url
+     * 获取 发布端 url.
      *
      * @return void
      */
@@ -249,7 +250,7 @@ trait Jwt
     }
 
     /**
-     * 获取 请求端 url
+     * 获取 请求端 url.
      *
      * @return void
      */
