@@ -9,6 +9,7 @@ use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\ValidationData;
 use think\App;
+use think\Model;
 use xiaodi\JWTAuth\Exception\JWTException;
 use xiaodi\JWTAuth\Exception\JWTInvalidArgumentException;
 use xiaodi\JWTAuth\Exception\TokenAlreadyEexpired;
@@ -38,11 +39,12 @@ class Jwt
 
     use \xiaodi\JWTAuth\Traits\Jwt;
 
-    public function __construct(App $app, Manager $manager, Builder $builder)
+    public function __construct(App $app, Manager $manager, Builder $builder, User $user)
     {
         $this->app = $app;
         $this->manager = $manager;
         $this->builder = $builder;
+        $this->user = $user;
 
         $config = $this->getConfig();
         foreach ($config as $key => $v) {
@@ -69,7 +71,7 @@ class Jwt
      */
     public function token(array $claims): Token
     {
-        $uniqid = $this->makeTokenId();
+        $uniqid = $this->makeTokenId($claims);
 
         $this->builder->setIssuer($this->iss())
             ->setAudience($this->aud())
@@ -90,11 +92,22 @@ class Jwt
     }
 
     /**
+     * 
+     * 生成 Token ID
+     * @param array $claims
+     * 
      * @return string
      */
-    private function makeTokenId(): string
+    private function makeTokenId(array $claims): string
     {
         $uniqid = uniqid();
+
+        // 开启用户注入
+        if ($this->user->hasInject()) {
+            if (empty($claims[$this->getUniqidKey()])) {
+                throw new JWTException('用户唯一值·uniqidKey·未配置', 500);
+            }
+        }
 
         return (string) $uniqid;
     }
@@ -102,11 +115,11 @@ class Jwt
     /**
      * 获取 当前用户.
      *
-     * @return User
+     * @return Model
      */
-    public function user(): User
+    public function user(): Model
     {
-        return $this->user;
+        return $this->user->get();
     }
 
     /**
@@ -202,7 +215,7 @@ class Jwt
     protected function validateToken()
     {
         // 验证密钥是否与创建签名的密钥一致
-        if (false === $this->token->verify($this->getSigner(), $this->makeKey())) {
+        if (false === $this->token->verify($this->getSigner(), $this->makeSignerKey())) {
             throw new JWTException('此 Token 与 密钥不匹配', 500);
         }
 

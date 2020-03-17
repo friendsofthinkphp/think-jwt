@@ -2,7 +2,7 @@
 
 return [
     'default' => [
-        'key'          => 'uid',
+        'uniqidKey'    => 'uid',
         'signerKey'    => '',
         'notBefore'    => 0,
         'expiresAt'    => 3600,

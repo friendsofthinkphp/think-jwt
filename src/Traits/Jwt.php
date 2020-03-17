@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace xiaodi\JWTAuth\Traits;
 
 use Lcobucci\JWT\Signer;
+use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Signer\Key;
 use xiaodi\JWTAuth\Exception\JWTException;
 use xiaodi\JWTAuth\Exception\JWTInvalidArgumentException;
 
 trait Jwt
 {
+    private $uniqidKey = 'uid';
     private $signerKey;
     private $notBefore = 0;
     private $expiresAt = 3600;
@@ -26,61 +28,132 @@ trait Jwt
     private $iss;
     private $aud;
 
-    public function refreshTTL()
-    {
-        return (int) $this->refreshTTL;
-    }
-
-    public function setRefreshTTL($value)
-    {
-        $this->refreshTTL = (int) $value;
-    }
-
-    public function getReloginCode()
-    {
-        return (int) $this->relogin;
-    }
-
-    public function notBefore()
-    {
-        return (int) $this->notBefore;
-    }
-
-    public function setNotBefore($value)
-    {
-        $this->notBefore = (int) $value;
-    }
-
-    public function ttl()
-    {
-        return (int) $this->expiresAt;
-    }
-
-    public function setTTL(int $value)
-    {
-        $this->ttl = $value;
-    }
-
+    /**
+     * 获取 Token获取途径
+     *
+     * @return string
+     */
     public function type()
     {
         return $this->type;
     }
 
+    /**
+     * 设置 Token获取途径
+     *
+     * @return void
+     */
     public function setType($type)
     {
         return $this->type = $type;
     }
 
+    /**
+     * 获取 用户表唯一标识值名
+     *
+     * @return void
+     */
+    public function getUniqidKey()
+    {
+        return $this->uniqidKey;
+    }
+
+    /**
+     * 获取 刷新Token TTL
+     *
+     * @return void
+     */
+    public function refreshTTL()
+    {
+        return (int) $this->refreshTTL;
+    }
+
+    /**
+     * 设置 刷新Token TTL
+     *
+     * @param [type] $value
+     * @return void
+     */
+    public function setRefreshTTL($value)
+    {
+        $this->refreshTTL = (int) $value;
+    }
+
+    /**
+     *
+     * @return void
+     */
+    public function getReloginCode()
+    {
+        return (int) $this->relogin;
+    }
+
+    /**
+     * 获取 检测延迟
+     *
+     * @return void
+     */
+    public function notBefore()
+    {
+        return (int) $this->notBefore;
+    }
+
+    /**
+     * 设置 检测延迟
+     *
+     * @param [type] $value
+     * @return void
+     */
+    public function setNotBefore($value)
+    {
+        $this->notBefore = (int) $value;
+    }
+
+    /**
+     * 获取  TTl
+     *
+     * @return void
+     */
+    public function ttl()
+    {
+        return (int) $this->expiresAt;
+    }
+
+    /**
+     * 设置 TTL
+     *
+     * @param integer $value
+     * @return void
+     */
+    public function setTTL(int $value)
+    {
+        $this->expiresAt = $value;
+    }
+
+    /**
+     *
+     * @return void
+     */
     public function getAlreadyCode()
     {
         return $this->tokenAlready;
     }
 
+    /**
+     *
+     * @return void
+     */
     public function getHasLoggedCode()
     {
         return $this->hasLogged;
     }
 
+    /**
+     * 设置有效期
+     *
+     * @param [type] $value
+     * @return void
+     */
     public function setExpiresAt($value)
     {
         $this->expiresAt = (int) $value;
@@ -163,6 +236,11 @@ trait Jwt
         return new Key($key);
     }
 
+    /**
+     * 获取 发布端 url
+     *
+     * @return void
+     */
     public function iss()
     {
         $iss = $this->app->request->root(true);
@@ -170,8 +248,23 @@ trait Jwt
         return $this->iss ?: $iss;
     }
 
+    /**
+     * 获取 请求端 url
+     *
+     * @return void
+     */
     public function aud()
     {
         return $this->aud;
+    }
+
+    /**
+     * 获取 已验证的Token对象
+     *
+     * @return Token
+     */
+    public function getToken()
+    {
+        return $this->token;
     }
 }
