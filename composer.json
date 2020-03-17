@@ -30,18 +30,18 @@
     },
     "autoload": {
         "psr-4": {
-            "xiaodi\\": "src/"
+            "xiaodi\\JWTAuth\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "xiaodi\\Tests\\": "tests/"
+            "xiaodi\\JWTAuth\\Tests\\": "tests/"
         }
     },
     "extra": {
         "think": {
             "services": [
-                "xiaodi\\JwtService"
+                "xiaodi\\JWTAuth\\JwtService"
             ],
             "config": {
                 "jwt": "config/config.php"

@@ -1,12 +1,14 @@
 <?php
 
-namespace xiaodi\Facade;
+declare(strict_types=1);
+
+namespace xiaodi\JWTAuth\Facade;
 
 use think\Facade;
 
 /**
- * @see \xiaodi\Jwt
- * @mixin \xiaodi\Jwt
+ * @see \xiaodi\JWTAuth\Jwt
+ * @mixin \xiaodi\JWTAuth\Jwt
  */
 class Jwt extends Facade
 {

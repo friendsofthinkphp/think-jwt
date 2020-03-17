@@ -1,6 +1,6 @@
 <?php
 
-namespace xiaodi\Exception;
+namespace xiaodi\JWTAuth\Exception;
 
 /**
  * Token 已在其它终端登录.

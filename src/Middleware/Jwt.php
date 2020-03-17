@@ -1,11 +1,13 @@
 <?php
 
-namespace xiaodi\Middleware;
+declare(strict_types=1);
+
+namespace xiaodi\JWTAuth\Middleware;
 
 use think\App;
-use xiaodi\BearerToken;
-use xiaodi\Exception\JWTException;
-use xiaodi\Jwt as Ac;
+use xiaodi\JWTAuth\BearerToken;
+use xiaodi\JWTAuth\Exception\JWTException;
+use xiaodi\JWTAuth\Jwt as Ac;
 
 /**
  * 中间件.

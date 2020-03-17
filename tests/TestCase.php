@@ -1,6 +1,6 @@
 <?php
 
-namespace xiaodi\Tests;
+namespace xiaodi\JWTAuth\Tests;
 
 use Mockery as m;
 use Mockery\MockInterface;

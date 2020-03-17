@@ -1,17 +1,16 @@
 <?php
 
-namespace xiaodi\Traits;
+declare(strict_types=1);
+
+namespace xiaodi\JWTAuth\Traits;
 
 use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Key;
-use xiaodi\Exception\JWTException;
-use xiaodi\Exception\JWTInvalidArgumentException;
+use xiaodi\JWTAuth\Exception\JWTException;
+use xiaodi\JWTAuth\Exception\JWTInvalidArgumentException;
 
 trait Jwt
 {
-    private $sso = false;
-    private $ssoCacheKey = 'jwt-auth-user';
-    private $ssoKey = 'uid';
     private $signerKey;
     private $notBefore = 0;
     private $expiresAt = 3600;
@@ -19,12 +18,13 @@ trait Jwt
     private $signer = \Lcobucci\JWT\Signer\Hmac\Sha256::class;
 
     private $type = 'Header';
-    private $injectUser = false;
-    private $userModel;
-
+    
     private $hasLogged = 50401;
     private $tokenAlready = 50402;
     private $relogin = 50400;
+
+    private $iss;
+    private $aud;
 
     public function refreshTTL()
     {
@@ -84,51 +84,6 @@ trait Jwt
     public function setExpiresAt($value)
     {
         $this->expiresAt = (int) $value;
-    }
-
-    /**
-     * 是否单点登录.
-     *
-     * @return bool
-     */
-    private function sso()
-    {
-        return $this->sso;
-    }
-
-    /**
-     * 设置单点登录.
-     *
-     * @return bool
-     */
-    public function setSso($bool)
-    {
-        return $this->sso = $bool;
-    }
-
-    /**
-     * 获取 sso_key.
-     *
-     * @return string
-     */
-    public function ssoKey()
-    {
-        $key = $this->ssoKey;
-        if (empty($key)) {
-            throw new JWTInvalidArgumentException('sso_key 未配置', 500);
-        }
-
-        return $key;
-    }
-
-    /**
-     * 设置 sso_key.
-     *
-     * @return string
-     */
-    public function setSSOKey($key)
-    {
-        $this->ssoKey = $key;
     }
 
     /**
@@ -193,7 +148,12 @@ trait Jwt
         return $signer;
     }
 
-    public function getKey()
+    /**
+     * 生成Key.
+     *
+     * @return Key
+     */
+    private function makeSignerKey()
     {
         $key = $this->getSignerKey();
         if (empty($key)) {
@@ -201,5 +161,16 @@ trait Jwt
         }
 
         return new Key($key);
+    }
+
+    public function iss()
+    {
+        $iss = $this->app->request->root(true);
+        return $this->iss ?: $iss;
+    }
+
+    public function aud()
+    {
+        return $this->aud;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace xiaodi\Tests;
+namespace xiaodi\JWTAuth\Tests;
 
 use Lcobucci\JWT\Token;
 use Mockery as m;
@@ -10,13 +10,16 @@ use think\facade\Config;
 use xiaodi\Exception\JWTException;
 use xiaodi\Exception\JWTInvalidArgumentException;
 use xiaodi\Exception\TokenAlreadyEexpired;
-use xiaodi\Jwt;
+use xiaodi\JWTAuth\Jwt;
+use xiaodi\JWTAuth\Blacklist;
 
 class JwtTest extends TestCase
 {
     protected function setUp()
     {
         parent::setUp();
+
+        $this->blacklist = m::mock(Blacklist::class)->makePartial();
 
         $signerKey = 'tant';
         $this->customConfig = [
@@ -65,19 +68,19 @@ class JwtTest extends TestCase
      */
     public function testGetConfig()
     {
-        $jwt = new Jwt($this->app);
+        $jwt = new Jwt($this->app, $this->blacklist);
         $this->assertEquals($this->customConfig, $jwt->getConfig());
     }
 
     public function testSignerKey()
     {
-        $jwt = new Jwt($this->app);
+        $jwt = new Jwt($this->app, $this->blacklist);
         $this->assertEquals($this->customConfig['signerKey'], $jwt->getSignerKey());
     }
 
     public function testParse()
     {
-        $jwt = new Jwt($this->app);
+        $jwt = new Jwt($this->app, $this->blacklist);
         $token = $jwt->token(['uid' => 1]);
         $token = $jwt->parse((string) $token);
 
@@ -90,14 +93,14 @@ class JwtTest extends TestCase
 
     public function testCode()
     {
-        $jwt = new Jwt($this->app);
+        $jwt = new Jwt($this->app, $this->blacklist);
         $this->assertEquals(50401, $jwt->getHasLoggedCode());
         $this->assertEquals(50402, $jwt->getAlreadyCode());
     }
 
     public function testToken()
     {
-        $jwt = new Jwt($this->app);
+        $jwt = new Jwt($this->app, $this->blacklist);
 
         $uid = 1;
         $token = $jwt->token(['uid' => $uid]);
@@ -107,7 +110,7 @@ class JwtTest extends TestCase
 
     public function testVerify()
     {
-        $jwt = new Jwt($this->app);
+        $jwt = new Jwt($this->app, $this->blacklist);
 
         $uid = 1;
         $token = $jwt->token(['uid' => $uid]);
@@ -121,7 +124,7 @@ class JwtTest extends TestCase
 
     public function testSSOVerify()
     {
-        $jwt = new Jwt($this->app);
+        $jwt = new Jwt($this->app, $this->blacklist);
 
         $uid = 1;
         $jwt->setSSO(true);
@@ -135,7 +138,7 @@ class JwtTest extends TestCase
 
     public function testTokenSignerNotMatch()
     {
-        $jwt = new Jwt($this->app);
+        $jwt = new Jwt($this->app, $this->blacklist);
         $token = $jwt->token(['uid' => 1]);
         $jwt->setSignerKey('xxx');
         $this->expectException(JWTException::class);
@@ -144,7 +147,7 @@ class JwtTest extends TestCase
 
     public function testGetSigner()
     {
-        $jwt = new Jwt($this->app);
+        $jwt = new Jwt($this->app, $this->blacklist);
         $jwt->setSigner('');
         $this->expectException(JWTInvalidArgumentException::class);
         $jwt->token(['uid' => 1]);
@@ -152,7 +155,7 @@ class JwtTest extends TestCase
 
     public function testInvalidSsoKey()
     {
-        $jwt = new Jwt($this->app);
+        $jwt = new Jwt($this->app, $this->blacklist);
         $jwt->setSSO(true);
         $jwt->setSSOKey('');
         $this->expectException(JWTInvalidArgumentException::class);
@@ -161,7 +164,7 @@ class JwtTest extends TestCase
 
     public function testInvalidExceptionSsoKey()
     {
-        $jwt = new Jwt($this->app);
+        $jwt = new Jwt($this->app, $this->blacklist);
         $jwt->setSSO(true);
         $jwt->setSSOKey('uids');
         $this->expectException(JWTInvalidArgumentException::class);
@@ -170,7 +173,7 @@ class JwtTest extends TestCase
 
     public function testSso()
     {
-        $jwt = new Jwt($this->app);
+        $jwt = new Jwt($this->app, $this->blacklist);
         $jwt->setSSO(true);
         $jwt->setSSOKey('uid');
         $jwt->token(['uid' => 1234]);
@@ -178,7 +181,7 @@ class JwtTest extends TestCase
 
     public function testRefresh()
     {
-        $jwt = new Jwt($this->app);
+        $jwt = new Jwt($this->app, $this->blacklist);
         $token = $jwt->token(['uid' => 1234]);
         $token = $jwt->refresh($token);
 
@@ -187,7 +190,7 @@ class JwtTest extends TestCase
 
     public function testTokenAlreadyEexpired()
     {
-        $jwt = new Jwt($this->app);
+        $jwt = new Jwt($this->app, $this->blacklist);
         $jwt->setExpiresAt(-1);
         $token = $jwt->token(['uid' => 1234]);
         $this->expectException(TokenAlreadyEexpired::class);
@@ -196,7 +199,7 @@ class JwtTest extends TestCase
 
     public function testTokenNotBefore()
     {
-        $jwt = new Jwt($this->app);
+        $jwt = new Jwt($this->app, $this->blacklist);
         $jwt->setNotBefore(10);
         $token = $jwt->token(['uid' => 1234]);
         $this->expectException(JWTException::class);

@@ -1,6 +1,8 @@
 <?php
 
-namespace xiaodi;
+declare(strict_types=1);
+
+namespace xiaodi\JWTAuth;
 
 use Lcobucci\JWT\Token;
 use think\App;
@@ -40,7 +42,7 @@ class Blacklist
      *
      * @return void
      */
-    public function push(Token $token)
+    public function add(Token $token)
     {
         if (false === $this->has($token)) {
             $claims = $token->getClaims();
@@ -56,7 +58,7 @@ class Blacklist
      *
      * @return bool
      */
-    public function has(Token $token)
+    public function has(Token $token): Bool
     {
         $blacklist = $this->getAll();
 
@@ -68,7 +70,7 @@ class Blacklist
      *
      * @return array
      */
-    public function getAll()
+    public function getAll(): Array
     {
         return $this->store->get($this->cacheName, []);
     }

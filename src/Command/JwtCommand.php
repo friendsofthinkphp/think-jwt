@@ -1,6 +1,8 @@
 <?php
 
-namespace xiaodi\Command;
+declare(strict_types=1);
+
+namespace xiaodi\JWTAuth\Command;
 
 use Nette\PhpGenerator\Helpers;
 use Nette\PhpGenerator\PhpFile;
@@ -35,10 +37,10 @@ class JwtCommand extends Command
         $file->setStrictTypes();
 
         $config = config('jwt');
-        $config['signerKey'] = randomKey();
-        $config = 'return '.Helpers::dump($config).';';
+        $config['default']['signerKey'] = randomKey();
+        $config = 'return ' . Helpers::dump($config) . ';';
 
-        file_put_contents($this->app->getConfigPath().'jwt.php', $file.$config);
+        file_put_contents($this->app->getConfigPath() . 'jwt.php', $file . $config);
         $output->writeln('> success!');
     }
 }
