@@ -2,7 +2,7 @@
 
 return [
     'default' => [
-        'key'          => 'uid', 
+        'key'          => 'uid',
         'signerKey'    => '',
         'notBefore'    => 0,
         'expiresAt'    => 3600,
@@ -13,10 +13,10 @@ return [
         'hasLogged'    => 50401,
         'tokenAlready' => 50402,
         'iss'          => '',
-        'aud'          => ''
+        'aud'          => '',
     ],
     'user' => [
         'inject' => false,
-        'model' => ''
-    ]
+        'model'  => '',
+    ],
 ];

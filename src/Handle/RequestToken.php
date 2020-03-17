@@ -21,12 +21,13 @@ class RequestToken
     }
 
     /**
-     * 获取请求Token
+     * 获取请求Token.
      *
      * @param string $handle
-     * @return String
+     *
+     * @return string
      */
-    public function getToken(string $handle): String
+    public function getToken(string $handle): string
     {
         if (!in_array($handle, $this->handles)) {
             throw new JwtException('不支持只方式获取.', 500);

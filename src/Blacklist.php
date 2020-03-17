@@ -58,7 +58,7 @@ class Blacklist
      *
      * @return bool
      */
-    public function has(Token $token): Bool
+    public function has(Token $token): bool
     {
         $blacklist = $this->getAll();
 
@@ -70,7 +70,7 @@ class Blacklist
      *
      * @return array
      */
-    public function getAll(): Array
+    public function getAll(): array
     {
         return $this->store->get($this->cacheName, []);
     }

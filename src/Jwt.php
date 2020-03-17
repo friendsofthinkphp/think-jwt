@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace xiaodi\JWTAuth;
 
-use think\App;
 use Lcobucci\JWT\Builder;
+use Lcobucci\JWT\Parser;
+use Lcobucci\JWT\Token;
 use Lcobucci\JWT\ValidationData;
-use xiaodi\JWTAuth\Manager;
-use xiaodi\JWTAuth\Exception\HasLoggedException;
+use think\App;
 use xiaodi\JWTAuth\Exception\JWTException;
 use xiaodi\JWTAuth\Exception\JWTInvalidArgumentException;
 use xiaodi\JWTAuth\Exception\TokenAlreadyEexpired;
-use Lcobucci\JWT\Token;
-use Lcobucci\JWT\Parser;
 use xiaodi\JWTAuth\Handle\RequestToken;
 
 class Jwt
@@ -33,7 +31,7 @@ class Jwt
      */
     private $manager;
 
-     /**
+    /**
      * @var Builder
      */
     private $builder;
@@ -53,9 +51,9 @@ class Jwt
     }
 
     /**
-     * 获取jwt配置
+     * 获取jwt配置.
      *
-     * @return Array
+     * @return array
      */
     public function getConfig(): array
     {
@@ -66,7 +64,7 @@ class Jwt
      * 生成 Token.
      *
      * @param array $claims
-     * 
+     *
      * @return Token
      */
     public function token(array $claims): Token
@@ -79,7 +77,7 @@ class Jwt
             ->setIssuedAt(time())
             ->setNotBefore(time() + $this->notBefore())
             ->setExpiration(time() + $this->ttl());
-        
+
         foreach ($claims as $key => $claim) {
             $this->builder->set($key, $claim);
         }
@@ -92,10 +90,9 @@ class Jwt
     }
 
     /**
-     *
-     * @return String
+     * @return string
      */
-    private function makeTokenId(): String
+    private function makeTokenId(): string
     {
         $uniqid = uniqid();
 
@@ -103,7 +100,7 @@ class Jwt
     }
 
     /**
-     * 获取 当前用户
+     * 获取 当前用户.
      *
      * @return User
      */
@@ -113,7 +110,7 @@ class Jwt
     }
 
     /**
-     * 刷新 Token
+     * 刷新 Token.
      *
      * @return void
      */
@@ -125,7 +122,7 @@ class Jwt
     }
 
     /**
-     * 自动获取请求下的Token
+     * 自动获取请求下的Token.
      *
      * @return Token
      */
@@ -145,7 +142,7 @@ class Jwt
     }
 
     /**
-     * 解析 Token
+     * 解析 Token.
      *
      * @return Token
      */
@@ -156,9 +153,8 @@ class Jwt
         return $token;
     }
 
-
     /**
-     * 登出
+     * 登出.
      *
      * @return void
      */
@@ -173,6 +169,7 @@ class Jwt
      * 验证 Token.
      *
      * @param Token $token
+     *
      * @return bool
      */
     public function verify(Token $token = null)
@@ -222,8 +219,7 @@ class Jwt
         $data->setAudience($this->aud());
         $data->setId($jwt_id);
 
-        if (!$this->token->validate($data))
-        {
+        if (!$this->token->validate($data)) {
             throw new JWTException('此 Token 效验不通过', 500);
         }
 

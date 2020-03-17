@@ -10,8 +10,8 @@ use think\facade\Config;
 use xiaodi\Exception\JWTException;
 use xiaodi\Exception\JWTInvalidArgumentException;
 use xiaodi\Exception\TokenAlreadyEexpired;
-use xiaodi\JWTAuth\Jwt;
 use xiaodi\JWTAuth\Blacklist;
+use xiaodi\JWTAuth\Jwt;
 
 class JwtTest extends TestCase
 {

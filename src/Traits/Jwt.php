@@ -18,7 +18,7 @@ trait Jwt
     private $signer = \Lcobucci\JWT\Signer\Hmac\Sha256::class;
 
     private $type = 'Header';
-    
+
     private $hasLogged = 50401;
     private $tokenAlready = 50402;
     private $relogin = 50400;
@@ -166,6 +166,7 @@ trait Jwt
     public function iss()
     {
         $iss = $this->app->request->root(true);
+
         return $this->iss ?: $iss;
     }
 

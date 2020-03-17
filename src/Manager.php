@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace xiaodi\JWTAuth;
 
 use Lcobucci\JWT\Token;
-use xiaodi\JWTAuth\Blacklist;
 
 class Manager
 {
@@ -30,10 +29,11 @@ class Manager
     }
 
     /**
-     * Undocumented function
+     * Undocumented function.
      *
      * @param Token $token
-     * @return boolean
+     *
+     * @return bool
      */
     public function hasBlacklist(Token $token)
     {

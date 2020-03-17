@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace xiaodi\JWTAuth;
 
-use think\App;
-
 class User
 {
     private $inject = true;
