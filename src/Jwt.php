@@ -229,7 +229,7 @@ class Jwt
 
         // 是否在黑名单
         if ($this->manager->hasBlacklist($this->token)) {
-            throw new JWTException('此 Token 已注销', 500);
+            throw new TokenAlreadyEexpired('此 Token 已注销，请重新登录', $this->getReloginCode());
         }
 
         // 是否已过期
