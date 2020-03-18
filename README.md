@@ -19,25 +19,25 @@ $ php think jwt:make
 2. 配置
 `config/jwt.php`
 
-* `sso` 是否单点登录
-* `ssoCacheKey` 缓存前缀
-* `ssoKey` 用户唯一标识(多点登录 设置失效)
+* `uniqidKey` 用户唯一标识
 * `signerKey` 密钥
 * `notBefore` 时间前不能使用 默认生成后直接使用
 * `expiresAt` Token有效期（秒）
 * `signer` 加密算法
 * `type`  获取 Token 途径
-* `injectUser` 是否注入用户模型
-* `userModel` 用户模型
-* `hasLogged` 开启单点登录时，多点登录抛异常code = 50401
-* `tokenAlready` Token过期抛异常code = 50402
+* `inject` 是否注入用户模型
+* `model` 用户模型
+* `refresh` Token过期抛异常code = 50001
+* `relogin` Token失效异常code = 50002
 
-`xiaodi\Exception\HasLoggedException`, `xiaodi\Exception\TokenAlreadyEexpired`
+* `xiaodi\Exception\HasLoggedException`
+* `xiaodi\Exception\TokenAlreadyEexpired`
+
 以上两个异常都会抛一个HTTP异常 StatusCode = 401
 
 3. Token 生成
 ```php
-use xiaodi\Facade\Jwt;
+use xiaodi\JWTAuth\Facade\Jwt;
 
 public function login()
 {
@@ -46,16 +46,17 @@ public function login()
     return json([
         'token' => Jwt::token(['uid' => 1]),
         'token_type' => Jwt::type(),
-        'expires_in' => Jwt::ttl()
+        'expires_in' => Jwt::ttl(),
+        'refresh_in' => Jwt::refreshTTL()
     ]);
 }
 ```
 
 4. Token 验证(手动)
 ```php
-use xiaodi\Facade\Jwt;
-use xiaodi\Exception\HasLoggedException;
-use xiaodi\Exception\TokenAlreadyEexpired;
+use xiaodi\JWTAuth\Facade\Jwt;
+use xiaodi\JWTAuth\Exception\HasLoggedException;
+use xiaodi\JWTAuth\Exception\TokenAlreadyEexpired;
 
 class User {
 
@@ -79,7 +80,7 @@ class User {
 
 5. Token 验证(中间件)
 ```php
-use xiaodi\Jwt;
+use xiaodi\JWTAuth\Jwt;
 
 use app\model\User;
 
@@ -94,7 +95,7 @@ class UserController {
     // 开启用户模型注入
     public function user(User $user)
     {
-        var_dump($user->name);
+        var_dump($user->nickname);
     }
 }
 
@@ -112,7 +113,7 @@ class UserController {
 
 类型 | 途径 | 标识 |
 :-: | :-: | :-: | 
-Bearer | Authorization | Bearer |
+Header | Authorization | Bearer Token |
 Cookie | Cookie| token |
 Url | Request | token |
 
@@ -123,34 +124,13 @@ Url | Request | token |
 
 return [
 
-    // ...其它配置
-    'type' => 'Bearer',
-    
-    // 'type' => 'Cookie',
-    // 'type' => 'Url',
-];
-```
-
-```php
-# UserController.php
-
-use xiaodi\Facade\Jwt;
-
-class User
-{
-    public function index()
-    {
-        // 自动获取并验证
-        try {
-            Jwt::verify();
-        } catch (HasLoggedException $e) {
-            // 已在其它终端登录
-        } catch (TokenAlreadyEexpired $e) {
-            // Token已过期
-        }
+    'default' => [
+        // ...其它配置
+        'type' => 'Bearer',
         
-        $uid = Jwt::userId();
-    }
-
-}
+        // 'type' => 'Cookie',
+        // 'type' => 'Url',
+    ]
+    
+];
 ```

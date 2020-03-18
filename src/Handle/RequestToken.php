@@ -27,10 +27,10 @@ class RequestToken
      *
      * @return string
      */
-    public function getToken(string $handle): string
+    public function get(string $handle): string
     {
         if (!in_array($handle, $this->handles)) {
-            throw new JwtException('不支持只方式获取.', 500);
+            throw new JwtException('不支持此方式获取.', 500);
         }
 
         $this->token = (new Header($this->app))->handle();

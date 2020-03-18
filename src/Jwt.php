@@ -152,7 +152,7 @@ class Jwt
     {
         $requestToken = new RequestToken($this->app);
 
-        $token = $requestToken->getToken($this->type());
+        $token = $requestToken->get($this->type());
 
         try {
             $token = (new Parser())->parse($token);
