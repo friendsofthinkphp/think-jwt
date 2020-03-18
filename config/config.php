@@ -9,9 +9,8 @@ return [
         'refreshExp'   => 7200,
         'signer'       => 'Lcobucci\JWT\Signer\Hmac\Sha256',
         'type'         => 'Header',
-        'relogin'      => 50400,
-        'hasLogged'    => 50401,
-        'tokenAlready' => 50402,
+        'refresh'      => 50001,
+        'relogin'      => 50002,
         'iss'          => '',
         'aud'          => '',
     ],
@@ -19,4 +18,7 @@ return [
         'inject' => false,
         'model'  => '',
     ],
+    'blacklist' => [
+        'cacheName' => 'blacklist'
+    ]
 ];

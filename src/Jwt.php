@@ -100,16 +100,11 @@ class Jwt
      */
     private function makeTokenId(array $claims): string
     {
-        $uniqid = uniqid();
-
-        // 开启用户注入
-        if ($this->user->hasInject()) {
-            if (empty($claims[$this->getUniqidKey()])) {
-                throw new JWTException('用户唯一值·uniqidKey·未配置', 500);
-            }
+        if (empty($claims[$this->getUniqidKey()])) {
+            throw new JWTException('用户唯一值·uniqidKey·未配置', 500);
         }
 
-        return (string) $uniqid;
+        return (string) $claims[$this->getUniqidKey()];
     }
 
     /**
@@ -125,13 +120,26 @@ class Jwt
     /**
      * 刷新 Token.
      *
-     * @return void
+     * @param Token $token
+     * @return Token
      */
-    public function refresh()
+    public function refresh(Token $token = null): Token
     {
-        $token = $this->getRequestToken();
+        $token = $token ?: $this->getRequestToken();
 
+        $claims = $token->getClaims();
+
+        unset($claims['iat']);
+        unset($claims['jti']);
+        unset($claims['nbf']);
+        unset($claims['exp']);
+        unset($claims['iss']);
+        unset($claims['aud']);
+
+        // 加入黑名单
         $this->manager->refresh($token);
+
+        return $this->token($claims);
     }
 
     /**
@@ -168,14 +176,14 @@ class Jwt
 
     /**
      * 登出.
-     *
+     * @param Token $token
      * @return void
      */
-    public function logout()
+    public function logout(Token $token = null)
     {
-        $token = $this->getRequestToken();
+        $this->token = $token ?: $this->getRequestToken();
 
-        $this->manager->refresh($token);
+        $this->manager->logout($this->token);
     }
 
     /**
@@ -191,15 +199,6 @@ class Jwt
 
         try {
             $this->validateToken();
-
-            // 是否已过期
-            if ($this->token->isExpired()) {
-                if (time() < ($this->token->getClaim('iat') + $this->refreshTTL())) {
-                    throw new TokenAlreadyEexpired('Token 已过期，请重新刷新', 401, $this->getAlreadyCode());
-                } else {
-                    throw new TokenAlreadyEexpired('Token 刷新时间已过，请重新登录', 401, $this->getReloginCode());
-                }
-            }
         } catch (\BadMethodCallException $e) {
             throw new JWTException('此 Token 未进行签名', 500);
         }
@@ -225,6 +224,20 @@ class Jwt
             throw new JWTException('此 Token 暂未可用', 500);
         }
 
+        // 是否在黑名单
+        if ($this->manager->hasBlacklist($this->token)) {
+            throw new JWTException('此 Token 已注销', 500);
+        }
+
+        // 是否已过期
+        if ($this->token->isExpired()) {
+            if (time() < ($this->token->getClaim('iat') + $this->refreshTTL())) {
+                throw new TokenAlreadyEexpired('Token 已过期，请重新刷新', $this->getAlreadyCode());
+            } else {
+                throw new TokenAlreadyEexpired('Token 刷新时间已过，请重新登录', $this->getReloginCode());
+            }
+        }
+
         $data = new ValidationData();
 
         $jwt_id = $this->token->getHeader('jti');
@@ -234,10 +247,6 @@ class Jwt
 
         if (!$this->token->validate($data)) {
             throw new JWTException('此 Token 效验不通过', 500);
-        }
-
-        if ($this->manager->hasBlacklist($this->token)) {
-            throw new JWTException('此 Token 已注销', 500);
         }
     }
 }

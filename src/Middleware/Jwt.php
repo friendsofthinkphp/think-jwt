@@ -5,42 +5,36 @@ declare(strict_types=1);
 namespace xiaodi\JWTAuth\Middleware;
 
 use think\App;
-use xiaodi\JWTAuth\BearerToken;
+use xiaodi\JWTAuth\User;
 use xiaodi\JWTAuth\Exception\JWTException;
-use xiaodi\JWTAuth\Jwt as Ac;
 
 /**
  * 中间件.
  */
 class Jwt
 {
-    private $jwt;
     private $app;
-    private $bearerToken;
+    private $user;
 
-    public function __construct(App $app, BearerToken $bearerToken, Ac $jwt)
+    public function __construct(App $app, User $user)
     {
-        $this->jwt = $jwt;
         $this->app = $app;
-        $this->bearerToken = $bearerToken;
+        $this->user = $user;
     }
 
     public function handle($request, \Closure $next)
     {
-        $token = $this->bearerToken->getToken();
-        if (true === $this->jwt->verify($token)) {
+        if (true === $this->app->jwt->verify()) {
             // 自动注入用户模型
-            if ($this->jwt->injectUser()) {
-                $user = $this->jwt->user();
+            if ($this->user->hasInject()) {
+                $user = $this->user->get();
                 // 路由注入
                 $request->user = $user;
 
-                // 依赖注入
-                $model = $this->jwt->userModel();
+                // 绑定当前用户模型
+                $model = $this->user->getModel();
                 $this->app->bind($model, $user);
             }
-
-            $request->jwt = $this->jwt;
 
             return $next($request);
         }

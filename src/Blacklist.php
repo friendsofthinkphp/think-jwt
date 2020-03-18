@@ -23,6 +23,17 @@ class Blacklist
         $this->app = $app;
 
         $this->store = $this->getStore();
+
+        $configs = $this->getConfig();
+
+        foreach($configs as $key => $config) {
+            $this->$key = $config;
+        }
+    }
+
+    public function getConfig()
+    {
+        return $this->app->config->get('jwt.blacklist', []);
     }
 
     /**

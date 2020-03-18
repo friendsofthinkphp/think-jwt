@@ -9,8 +9,8 @@ use think\exception\HttpException;
  */
 class JWTException extends HttpException
 {
-    public function __construct(string $message, $statusCode = 500, $code = 0)
+    public function __construct(string $message, $code = 0)
     {
-        parent::__construct($statusCode, $message, null, [], $code);
+        parent::__construct(401, $message, null, [], $code);
     }
 }
