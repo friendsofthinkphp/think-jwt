@@ -5,12 +5,12 @@
 [![Code Coverage](https://scrutinizer-ci.com/g/edenleung/think-jwt/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/edenleung/think-jwt/?branch=master)
 
 只支持 `thinkphp 6.0`
-### 安装
+## 安装
 ```sh
 $ composer require xiaodi/think-jwt
 ```
 
-### 使用
+## 使用
 1. 命令生成签名key
 ```sh
 $ php think jwt:make
@@ -30,12 +30,11 @@ $ php think jwt:make
 * `refresh` Token过期抛异常code = 50001
 * `relogin` Token失效异常code = 50002
 
+以下两个异常都会抛一个HTTP异常 StatusCode = 401
 * `xiaodi\Exception\HasLoggedException`
 * `xiaodi\Exception\TokenAlreadyEexpired`
 
-以上两个异常都会抛一个HTTP异常 StatusCode = 401
-
-3. Token 生成
+## Token 生成
 ```php
 use xiaodi\JWTAuth\Facade\Jwt;
 
@@ -52,7 +51,9 @@ public function login()
 }
 ```
 
-4. Token 验证(手动)
+## Token 验证
+
+### 手动验证
 ```php
 use xiaodi\JWTAuth\Facade\Jwt;
 use xiaodi\JWTAuth\Exception\HasLoggedException;
@@ -78,7 +79,7 @@ class User {
 
 ```
 
-5. Token 验证(中间件)
+### 中间件验证
 ```php
 use xiaodi\JWTAuth\Jwt;
 
@@ -101,11 +102,11 @@ class UserController {
 
 ```
 
-6. 自动获取验证
+## Token 自动获取
 
 支持以下方式自动获取
 
-* `Bearer`
+* `Header`
 * `Cookie`
 * `Url`
 
@@ -126,7 +127,7 @@ return [
 
     'default' => [
         // ...其它配置
-        'type' => 'Bearer',
+        'type' => 'Header',
         
         // 'type' => 'Cookie',
         // 'type' => 'Url',
