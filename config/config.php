@@ -19,6 +19,6 @@ return [
         'model'  => '',
     ],
     'blacklist' => [
-        'cacheName' => 'blacklist'
-    ]
+        'cacheName' => 'blacklist',
+    ],
 ];

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace xiaodi\JWTAuth\Middleware;
 
 use think\App;
-use xiaodi\JWTAuth\User;
 use xiaodi\JWTAuth\Exception\JWTException;
+use xiaodi\JWTAuth\User;
 
 /**
  * 中间件.

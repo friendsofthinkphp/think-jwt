@@ -121,6 +121,7 @@ class Jwt
      * 刷新 Token.
      *
      * @param Token $token
+     *
      * @return Token
      */
     public function refresh(Token $token = null): Token
@@ -176,7 +177,9 @@ class Jwt
 
     /**
      * 登出.
+     *
      * @param Token $token
+     *
      * @return void
      */
     public function logout(Token $token = null)

@@ -16,9 +16,10 @@ class Manager
     }
 
     /**
-     * 处理登录时
+     * 处理登录时.
      *
      * @param Token $token
+     *
      * @return void
      */
     public function login(Token $token)
@@ -28,9 +29,10 @@ class Manager
     }
 
     /**
-     * 处理登出时
+     * 处理登出时.
      *
      * @param Token $token
+     *
      * @return void
      */
     public function logout(Token $token)
@@ -39,9 +41,10 @@ class Manager
     }
 
     /**
-     * 处理刷新时
+     * 处理刷新时.
      *
      * @param Token $token
+     *
      * @return void
      */
     public function refresh(Token $token)

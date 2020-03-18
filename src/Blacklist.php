@@ -26,7 +26,7 @@ class Blacklist
 
         $configs = $this->getConfig();
 
-        foreach($configs as $key => $config) {
+        foreach ($configs as $key => $config) {
             $this->$key = $config;
         }
     }
