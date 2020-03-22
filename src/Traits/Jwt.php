@@ -21,9 +21,8 @@ trait Jwt
 
     private $type = 'Header';
 
-    private $hasLogged = 50401;
-    private $tokenAlready = 50402;
-    private $relogin = 50400;
+    private $refresh = 50001;
+    private $relogin = 50002;
 
     private $iss;
     private $aud;
@@ -137,7 +136,7 @@ trait Jwt
      */
     public function getAlreadyCode()
     {
-        return $this->tokenAlready;
+        return $this->refresh;
     }
 
     /**

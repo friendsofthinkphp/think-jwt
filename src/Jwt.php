@@ -78,7 +78,8 @@ class Jwt
             ->setId($uniqid, true)
             ->setIssuedAt(time())
             ->setNotBefore(time() + $this->notBefore())
-            ->setExpiration(time() + $this->ttl());
+            ->setExpiration(time() + $this->ttl())
+            ->set('refreshAt', time() + $this->refreshTTL());
 
         foreach ($claims as $key => $claim) {
             $this->builder->set($key, $claim);
@@ -216,6 +217,11 @@ class Jwt
      */
     protected function validateToken()
     {
+        // 是否在黑名单
+        if ($this->manager->hasBlacklist($this->token)) {
+            throw new TokenAlreadyEexpired('此 Token 已注销，请重新登录', $this->getReloginCode());
+        }
+
         // 验证密钥是否与创建签名的密钥一致
         if (false === $this->token->verify($this->getSigner(), $this->makeSignerKey())) {
             throw new JWTException('此 Token 与 密钥不匹配', 500);
@@ -227,18 +233,13 @@ class Jwt
             throw new JWTException('此 Token 暂未可用', 500);
         }
 
-        // 是否在黑名单
-        if ($this->manager->hasBlacklist($this->token)) {
-            throw new TokenAlreadyEexpired('此 Token 已注销，请重新登录', $this->getReloginCode());
-        }
-
         // 是否已过期
-        if ($this->token->isExpired()) {
-            if (time() < ($this->token->getClaim('iat') + $this->refreshTTL())) {
-                throw new TokenAlreadyEexpired('Token 已过期，请重新刷新', $this->getAlreadyCode());
-            } else {
-                throw new TokenAlreadyEexpired('Token 刷新时间已过，请重新登录', $this->getReloginCode());
+        if (true === $this->token->isExpired()) {
+            if (time() <= $this->token->getClaim('refreshAt')) {
+                throw new TokenAlreadyEexpired('Token 已过期，请重新刷新' .time() . '-' . $this->token->getClaim('refreshAt'), $this->getAlreadyCode());
             }
+
+            throw new TokenAlreadyEexpired('Token 刷新时间已过，请重新登录', $this->getReloginCode());
         }
 
         $data = new ValidationData();
