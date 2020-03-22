@@ -236,7 +236,7 @@ class Jwt
         // 是否已过期
         if (true === $this->token->isExpired()) {
             if (time() <= $this->token->getClaim('refreshAt')) {
-                throw new TokenAlreadyEexpired('Token 已过期，请重新刷新' .time() . '-' . $this->token->getClaim('refreshAt'), $this->getAlreadyCode());
+                throw new TokenAlreadyEexpired('Token 已过期，请重新刷新'.time().'-'.$this->token->getClaim('refreshAt'), $this->getAlreadyCode());
             }
 
             throw new TokenAlreadyEexpired('Token 刷新时间已过，请重新登录', $this->getReloginCode());
