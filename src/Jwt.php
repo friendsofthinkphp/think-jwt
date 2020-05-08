@@ -224,7 +224,7 @@ class Jwt
 
         // 验证密钥是否与创建签名的密钥一致
         if (false === $this->token->verify($this->getSigner(), $this->makeSignerKey())) {
-            throw new JWTException('此 Token 与 密钥不匹配', 500);
+            throw new JWTException('此 Token 与 密钥不匹配', $this->getReloginCode());
         }
 
         // 是否可用
@@ -250,7 +250,7 @@ class Jwt
         $data->setId($jwt_id);
 
         if (!$this->token->validate($data)) {
-            throw new JWTException('此 Token 效验不通过', 500);
+            throw new JWTException('此 Token 效验不通过', $this->getReloginCode());
         }
     }
 }
