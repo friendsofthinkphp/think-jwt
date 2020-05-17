@@ -29,7 +29,7 @@ $ php think jwt:make
 * `model` 用户模型
 * `refresh` Token过期抛异常code = 50001
 * `relogin` Token失效异常code = 50002
-* `automaticRenewal` [开启过期自动续签](过期自动续签)
+* `automaticRenewal` [开启过期自动续签](#过期自动续签)
 
 以下两个异常都会抛一个HTTP异常 StatusCode = 401
 * `xiaodi\Exception\HasLoggedException`
