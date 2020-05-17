@@ -13,6 +13,7 @@ return [
         'relogin'      => 50002,
         'iss'          => '',
         'aud'          => '',
+        'automaticRenewal' => false,
     ],
     'user' => [
         'inject' => false,

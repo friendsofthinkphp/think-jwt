@@ -27,6 +27,8 @@ trait Jwt
     private $iss;
     private $aud;
 
+    private $automaticRenewal = false;
+
     /**
      * 获取 Token获取途径.
      *
@@ -266,5 +268,15 @@ trait Jwt
     public function getToken()
     {
         return $this->token;
+    }
+
+    /**
+     * 获取 是否开启过期自动续签
+     *
+     * @return void
+     */
+    public function automaticRenewal()
+    {
+        return $this->automaticRenewal;
     }
 }
