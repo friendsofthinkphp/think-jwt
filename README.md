@@ -29,6 +29,7 @@ $ php think jwt:make
 * `model` 用户模型
 * `refresh` Token过期抛异常code = 50001
 * `relogin` Token失效异常code = 50002
+* `automaticRenewal` [开启过期自动续签](过期自动续签)
 
 以下两个异常都会抛一个HTTP异常 StatusCode = 401
 * `xiaodi\Exception\HasLoggedException`
@@ -135,3 +136,15 @@ return [
     
 ];
 ```
+
+## 过期自动续签
+`app/config/jwt.php`
+
+`automaticRenewal => true`
+
+系统检测到 Token 已过期， 会自动续期并返回以下 header 信息。 
+
+* Automatic-Renewal-Token
+* Automatic-Renewal-Token-RefreshAt
+
+前端需要接收最新 Token，下次异步请求时，携带此 Token。
