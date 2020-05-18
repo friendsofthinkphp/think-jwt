@@ -142,6 +142,10 @@ return [
 
 `automaticRenewal => true`
 
+满足以下条件 就可以实现过期自动续签
+
+* Token 刷新时间 必须是有效时间内 
+
 系统检测到 Token 已过期， 会自动续期并返回以下 header 信息。 
 
 * Automatic-Renewal-Token
