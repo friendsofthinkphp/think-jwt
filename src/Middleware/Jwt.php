@@ -14,26 +14,26 @@ use xiaodi\JWTAuth\User;
 class Jwt
 {
     private $app;
-    private $user;
 
-    public function __construct(App $app, User $user)
+    public function __construct(App $app)
     {
         $this->app = $app;
-        $this->user = $user;
     }
 
     public function handle($request, \Closure $next, $type = 'admin')
     {
         if (true === $this->app->jwt->config($type)->verify()) {
+
+            $user = $this->app['jwt.user'];
             // 自动注入用户模型
-            if ($this->user->hasInject()) {
-                $user = $this->user->get();
+            if ($user->hasInject()) {
+                $userModel = $user->get();
                 // 路由注入
-                $request->user = $user;
+                $request->user = $userModel;
 
                 // 绑定当前用户模型
-                $model = $this->user->getModel();
-                $this->app->bind($model, $user);
+                $model = $user->getModel();
+                $this->app->bind($model, $userModel);
             }
 
             return $next($request);

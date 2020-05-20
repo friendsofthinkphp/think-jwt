@@ -56,7 +56,7 @@ class User
     public function get(): Model
     {
         $token = $this->jwt->getToken();
-
+        
         if (!$token) {
             throw new JWTException('未登录.', 500);
         }
