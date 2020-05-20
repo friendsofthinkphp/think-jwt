@@ -22,9 +22,9 @@ class Jwt
         $this->user = $user;
     }
 
-    public function handle($request, \Closure $next)
+    public function handle($request, \Closure $next, $type = 'admin')
     {
-        if (true === $this->app->jwt->verify()) {
+        if (true === $this->app->jwt->config($type)->verify()) {
             // 自动注入用户模型
             if ($this->user->hasInject()) {
                 $user = $this->user->get();

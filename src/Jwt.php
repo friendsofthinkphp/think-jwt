@@ -32,18 +32,44 @@ class Jwt
      */
     private $manager;
 
+    /**
+     * 默认配置
+     *
+     * @var string
+     */
+    private $config = 'admin';
+
     use \xiaodi\JWTAuth\Traits\Jwt;
 
-    public function __construct(App $app, Manager $manager, User $user)
+    public function __construct(App $app)
     {
         $this->app = $app;
-        $this->manager = $manager;
-        $this->user = $user;
+        // $this->user = $user;
 
-        $config = $this->getConfig();
+        // $this->user->config($this->config);
+        
+        $config = $this->getDefaultConfig();
         foreach ($config as $key => $v) {
             $this->$key = $v;
         }
+    }
+
+    /**
+     * 配置自定义
+     *
+     * @param [type] $value
+     * @return void
+     */
+    public function config($value)
+    {
+        $this->config = $value;
+
+        return $this;
+    }
+
+    public function getConfig()
+    {
+        return $this->config;
     }
 
     /**
@@ -51,9 +77,9 @@ class Jwt
      *
      * @return array
      */
-    public function getConfig(): array
+    public function getDefaultConfig(): array
     {
-        return $this->app->config->get('jwt.default', []);
+        return $this->app->config->get("jwt.{$this->config}.default", []);
     }
 
     /**
@@ -85,7 +111,7 @@ class Jwt
 
         $token = $builder->getToken($this->getSigner(), $this->makeSignerKey());
 
-        $this->manager->login($token);
+        // $this->manager->login($token);
 
         return $token;
     }
@@ -252,9 +278,9 @@ class Jwt
     protected function validateToken(Token $token)
     {
         // 是否在黑名单
-        if ($this->manager->hasBlacklist($token)) {
-            throw new TokenAlreadyEexpired('此 Token 已注销，请重新登录', $this->getReloginCode());
-        }
+        // if ($this->manager->hasBlacklist($token)) {
+        //     throw new TokenAlreadyEexpired('此 Token 已注销，请重新登录', $this->getReloginCode());
+        // }
 
         // 验证密钥是否与创建签名的密钥一致
         if (false === $token->verify($this->getSigner(), $this->makeSignerKey())) {

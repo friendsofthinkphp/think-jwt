@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace xiaodi\JWTAuth;
 
-use think\App;
 use think\Model;
 use xiaodi\JWTAuth\Exception\JWTException;
 
@@ -13,19 +12,20 @@ class User
     private $inject = false;
     private $model;
 
-    public function __construct(App $app)
+    public function __construct(Jwt $jwt)
     {
-        $this->app = $app;
-
-        $config = $this->getConfig();
-        foreach ($config as $key => $v) {
-            $this->$key = $v;
-        }
+        $this->jwt = $jwt;
+        $this->setConfig();
     }
 
-    public function getConfig()
+    public function setConfig()
     {
-        return $this->app->config->get('jwt.user', []);
+        $config = $this->jwt->getConfig();
+        $configs = app('config')->get("jwt.{$config}.user", []);
+
+        foreach ($configs as $key => $v) {
+            $this->$key = $v;
+        }
     }
 
     /**
@@ -55,7 +55,7 @@ class User
      */
     public function get(): Model
     {
-        $token = $this->app->jwt->getToken();
+        $token = $this->jwt->getToken();
 
         if (!$token) {
             throw new JWTException('未登录.', 500);
@@ -65,7 +65,7 @@ class User
             throw new JWTException('未开启注入功能.', 500);
         }
 
-        $uid = $token->getClaim($this->app->jwt->getUniqidKey());
+        $uid = $token->getClaim($this->jwt->getUniqidKey());
 
         $namespace = $this->getModel();
         $model = new $namespace();
