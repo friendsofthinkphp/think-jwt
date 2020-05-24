@@ -82,7 +82,7 @@ class Jwt
     {
         $config = $this->app->config->get("jwt.apps.{$this->store}.token", []);
         if (empty($config)) {
-            throw new JWTException("应用: {$this->store} 未配置完整.", 500);
+            throw new JWTException("{$this->store} 应用 未配置完整.", 500);
         }
 
         return $config;
