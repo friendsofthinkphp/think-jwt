@@ -11,7 +11,7 @@ $ composer require xiaodi/think-jwt
 ```
 
 ## 使用
-1. 命令生成签名key
+~~1. 命令生成签名key~~
 ```sh
 $ php think jwt:make
 ```
@@ -19,17 +19,57 @@ $ php think jwt:make
 2. 配置
 `config/jwt.php`
 
+完整多应用配置
+```php
+<?php
+
+return [
+    'default' => 'admin',
+    'apps' => [
+        'admin' => [
+            'token' => [
+                'uniqidKey'    => 'uid',
+                'signerKey'    => '',
+                'notBefore'    => 0,
+                'expiresAt'    => 3600,
+                'refreshTTL'   => 7200,
+                'signer'       => 'Lcobucci\JWT\Signer\Hmac\Sha256',
+                'type'         => 'Header',
+                'refresh'      => 50001,
+                'relogin'      => 50002,
+                'iss'          => '',
+                'aud'          => '',
+                'automaticRenewal' => false,
+            ],
+            'user' => [
+                'bind' => false,
+                'model'  => '',
+            ],
+            'blacklist' => [
+                'cacheKey' => 'admin',
+            ],
+        ]
+    ]
+];
+
+```
+## token
 * `uniqidKey` 用户唯一标识
 * `signerKey` 密钥
 * `notBefore` 时间前不能使用 默认生成后直接使用
 * `expiresAt` Token有效期（秒）
 * `signer` 加密算法
 * `type`  获取 Token 途径
-* `inject` 是否注入用户模型
-* `model` 用户模型
 * `refresh` Token过期抛异常code = 50001
 * `relogin` Token失效异常code = 50002
 * `automaticRenewal` [开启过期自动续签](过期自动续签)
+
+## user
+* `bind` 是否注入用户模型(中间件有效)
+* `model` 用户模型文件 
+
+## blacklist
+* `cacheKey` 黑名单缓存key
 
 以下两个异常都会抛一个HTTP异常 StatusCode = 401
 * `xiaodi\Exception\HasLoggedException`
@@ -43,8 +83,17 @@ public function login()
 {
     //...登录判断逻辑
 
+    // 默认应用
     return json([
         'token' => Jwt::token(['uid' => 1]),
+        'token_type' => Jwt::type(),
+        'expires_in' => Jwt::ttl(),
+        'refresh_in' => Jwt::refreshTTL()
+    ]);
+    
+    // 指定应用
+    return json([
+        'token' => Jwt::store('wechat')->token(['uid' => 1]),
         'token_type' => Jwt::type(),
         'expires_in' => Jwt::ttl(),
         'refresh_in' => Jwt::refreshTTL()
@@ -65,7 +114,11 @@ class User {
     public function test()
     {
         try {
+            // 默认应用
             Jwt::verify($token);
+            
+            // 默认应用
+            // Jwt::store('wechat')->verify($token);
         } catch (HasLoggedException $e) {
             // 已在其它终端登录
         } catch (TokenAlreadyEexpired $e) {
@@ -80,27 +133,15 @@ class User {
 
 ```
 
-### 中间件验证
+### 路由验证
 ```php
-use xiaodi\JWTAuth\Jwt;
+use xiaodi\JWTAuth\Middleware\Jwt;
 
-use app\model\User;
+// 默认应用
+Route::get('/hello', 'index/index')->middleware(Jwt::class);
 
-class UserController {
-    protected $middleware = ['JwtMiddleware'];
-
-    public function test(Jwt $jwt)
-    {
-        var_dump($jwt->getClaims());
-    }
-
-    // 开启用户模型注入
-    public function user(User $user)
-    {
-        var_dump($user->nickname);
-    }
-}
-
+// 指定应用
+Route::get('/hello', 'index/index')->middleware(Jwt::class, 'wechat');
 ```
 
 ## Token 自动获取
@@ -126,12 +167,16 @@ Url | Request | token |
 
 return [
 
-    'default' => [
-        // ...其它配置
-        'type' => 'Header',
-        
-        // 'type' => 'Cookie',
-        // 'type' => 'Url',
+    'apps' => [
+        'admin' => [
+            'token' => [
+                // ...其它配置
+                'type' => 'Header',
+                
+                // 'type' => 'Cookie',
+                // 'type' => 'Url',
+            ]
+        ]
     ]
     
 ];
