@@ -7,7 +7,7 @@
         "thinkphp"
     ],
     "description": "ThinkPHP Jwt Component",
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "authors": [
         {
             "name": "xiaodi",

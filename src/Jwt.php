@@ -17,43 +17,83 @@ use xiaodi\JWTAuth\Handle\RequestToken;
 
 class Jwt
 {
-    /**
-     * @var User
-     */
-    private $user;
-
-    /**
-     * @var Token
-     */
-    private $token;
-
-    /**
-     * @var Manager
-     */
-    private $manager;
-
     use \xiaodi\JWTAuth\Traits\Jwt;
 
-    public function __construct(App $app, Manager $manager, User $user)
+    private $config;
+
+    private $store;
+
+    private $user;
+
+    private $token;
+
+    public function __construct(App $app, $store = null)
     {
         $this->app = $app;
-        $this->manager = $manager;
-        $this->user = $user;
-
-        $config = $this->getConfig();
-        foreach ($config as $key => $v) {
-            $this->$key = $v;
+        
+        if ($store === null) {
+            $store = $this->getDefaultStore();
         }
+
+        $this->store = $store;
+        $this->make();
+    }
+
+    public function store(string $name = '')
+    {
+        $jwt = app('jwt', ['store' => $name], true);
+        $this->app->bind('jwt',  $jwt);
+        return $jwt;
+    }
+
+    protected function make()
+    {
+        $this->setStoreConfig();
+
+        return $this;
+    }
+
+    public function getStore()
+    {
+        return $this->store;
     }
 
     /**
-     * 获取jwt配置.
+     * 获取默认 app
      *
-     * @return array
+     * @return void
      */
-    public function getConfig(): array
+    public function getDefaultStore()
     {
-        return $this->app->config->get('jwt.default', []);
+        $store = $this->app->config->get("jwt.default", '');
+        if (!$store) {
+            throw new JWTException('默认应用 未配置.', 500);
+        }
+
+        return $store;
+    }
+
+    /**
+     * 获取 app jwt 配置
+     *
+     * @return void
+     */
+    public function getStoreConfig()
+    {
+        $config = $this->app->config->get("jwt.apps.{$this->store}.token", []);
+        if (empty($config)) {
+            throw new JWTException("{$this->store} 应用 未配置完整.", 500);
+        }
+
+        return $config;
+    }
+
+    protected function setStoreConfig()
+    {
+        $config = $this->getStoreConfig();
+        foreach ($config as $key => $v) {
+            $this->$key = $v;
+        }
     }
 
     /**
@@ -85,7 +125,7 @@ class Jwt
 
         $token = $builder->getToken($this->getSigner(), $this->makeSignerKey());
 
-        $this->manager->login($token);
+        $this->app['jwt.manager']->login($token);
 
         return $token;
     }
@@ -100,7 +140,7 @@ class Jwt
     private function makeTokenId(array $claims): string
     {
         if (empty($claims[$this->getUniqidKey()])) {
-            throw new JWTException('用户唯一值·uniqidKey·未配置', 500);
+            throw new JWTException('uniqidKey 未配置', 500);
         }
 
         return (string) $claims[$this->getUniqidKey()];
@@ -113,7 +153,12 @@ class Jwt
      */
     public function user(): Model
     {
-        return $this->user->get();
+        return $this->app['jwt.user']->get();
+    }
+
+    public function getToken()
+    {
+        return $this->token;
     }
 
     /**
@@ -137,7 +182,7 @@ class Jwt
         unset($claims['aud']);
 
         // 加入黑名单
-        $this->manager->refresh($token);
+        $this->app['jwt.manager']->refresh($token);
 
         return $this->token($claims);
     }
@@ -189,7 +234,7 @@ class Jwt
     {
         $token = $token ?: $this->getRequestToken();
 
-        $this->manager->logout($token);
+        $this->app['jwt.manager']->logout($token);
     }
 
     /**
@@ -252,7 +297,7 @@ class Jwt
     protected function validateToken(Token $token)
     {
         // 是否在黑名单
-        if ($this->manager->hasBlacklist($token)) {
+        if ($this->app['jwt.manager']->hasBlacklist($token)) {
             throw new TokenAlreadyEexpired('此 Token 已注销，请重新登录', $this->getReloginCode());
         }
 
