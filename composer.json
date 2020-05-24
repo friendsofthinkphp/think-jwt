@@ -49,10 +49,7 @@
         },
         "think-config": {
             "jwt": "config/config.php"
-        },
-        "branch-alias":{
-            "dev-master":"1.0.x-dev" 
-        } 
+        }
     },
     "scripts": {
         "coverage": "vendor/bin/phpunit --coverage-html=coverage",
