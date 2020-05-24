@@ -14,26 +14,27 @@ class Blacklist
 {
     private $app;
 
-    private $store;
+    private $cacheKey;
 
-    protected $cacheName = 'blacklist';
+    protected $cache;
 
     public function __construct(App $app)
     {
         $this->app = $app;
 
-        $this->store = $this->getStore();
+        $this->setStoreConfig();
 
-        $configs = $this->getConfig();
-
-        foreach ($configs as $key => $config) {
-            $this->$key = $config;
-        }
+        $this->cache = $this->getCache();
     }
 
-    public function getConfig()
+    public function setStoreConfig()
     {
-        return $this->app->config->get('jwt.blacklist', []);
+        $store = $this->app->jwt->getStore();
+        $configs = $this->app->config->get("jwt.apps.{$store}.blacklist", []);
+
+        foreach ($configs as $key => $v) {
+            $this->$key = $v;
+        }
     }
 
     /**
@@ -41,7 +42,7 @@ class Blacklist
      *
      * @return void
      */
-    public function getStore()
+    public function getCache()
     {
         return $this->app->cache;
     }
@@ -58,7 +59,7 @@ class Blacklist
         if (false === $this->has($token)) {
             $claims = $token->getClaims();
             $exp = $claims['exp']->getValue() - time();
-            $this->store->push($this->cacheName, (string) $token, $exp);
+            $this->cache->push($this->cacheKey, (string) $token, $exp);
         }
     }
 
@@ -83,6 +84,6 @@ class Blacklist
      */
     public function getAll(): array
     {
-        return $this->store->get($this->cacheName, []);
+        return $this->cache->get($this->cacheKey, []);
     }
 }

@@ -20,20 +20,20 @@ class Jwt
         $this->app = $app;
     }
 
-    public function handle($request, \Closure $next, $type = 'admin')
+    public function handle($request, \Closure $next, $store = 'admin')
     {
-        if (true === $this->app->jwt->config($type)->verify()) {
+        if (true === $this->app->jwt->store($store)->verify()) {
 
-            $user = $this->app['jwt.user'];
-            // 自动注入用户模型
-            if ($user->hasInject()) {
-                $userModel = $user->get();
+            $jwt_user = $this->app['jwt.user'];
+
+            if ($jwt_user->bind()) {
+                $user = $jwt_user->get();
                 // 路由注入
-                $request->user = $userModel;
+                $request->user = $user;
 
                 // 绑定当前用户模型
-                $model = $user->getModel();
-                $this->app->bind($model, $userModel);
+                $model = $jwt_user->getClass();
+                $this->app->bind($model, $user);
             }
 
             return $next($request);

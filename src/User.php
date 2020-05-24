@@ -4,24 +4,26 @@ declare(strict_types=1);
 
 namespace xiaodi\JWTAuth;
 
+use think\App;
 use think\Model;
 use xiaodi\JWTAuth\Exception\JWTException;
 
 class User
 {
-    private $inject = false;
+    private $bind = false;
     private $model;
+    protected $app;
 
-    public function __construct(Jwt $jwt)
+    public function __construct(App $app)
     {
-        $this->jwt = $jwt;
-        $this->setConfig();
+        $this->app = $app;
+        $this->setStoreConfig();
     }
 
-    public function setConfig()
+    public function setStoreConfig()
     {
-        $config = $this->jwt->getConfig();
-        $configs = app('config')->get("jwt.{$config}.user", []);
+        $store = $this->app->jwt->getStore();
+        $configs = $this->app->config->get("jwt.apps.{$store}.user", []);
 
         foreach ($configs as $key => $v) {
             $this->$key = $v;
@@ -33,9 +35,9 @@ class User
      *
      * @return bool
      */
-    public function hasInject()
+    public function bind()
     {
-        return $this->inject;
+        return $this->bind;
     }
 
     /**
@@ -43,9 +45,15 @@ class User
      *
      * @return string
      */
-    public function getModel()
+    public function getClass()
     {
-        return $this->model;
+        $class = $this->model;
+        if (!$class) {
+            $store = $this->app->jwt->getStore();
+            throw new JWTException("{$store} 应用  未配置 用户模型文件");
+        }
+
+        return $class; 
     }
 
     /**
@@ -55,19 +63,19 @@ class User
      */
     public function get(): Model
     {
-        $token = $this->jwt->getToken();
+        $token = $this->app->jwt->getToken();
         
         if (!$token) {
             throw new JWTException('未登录.', 500);
         }
 
-        if (!$this->hasInject()) {
+        if (!$this->bind()) {
             throw new JWTException('未开启注入功能.', 500);
         }
 
-        $uid = $token->getClaim($this->jwt->getUniqidKey());
+        $uid = $token->getClaim($this->app->jwt->getUniqidKey());
 
-        $namespace = $this->getModel();
+        $namespace = $this->getClass();
         $model = new $namespace();
         $user = $model->findOrFail($uid);
 
