@@ -62,7 +62,7 @@ return [
 * `type`  获取 Token 途径
 * `refresh` Token过期抛异常code = 50001
 * `relogin` Token失效异常code = 50002
-* `automaticRenewal` [开启过期自动续签](过期自动续签)
+* `automaticRenewal` [开启过期自动续签](#过期自动续签)
 
 ## user
 * `bind` 是否注入用户模型(中间件有效)
