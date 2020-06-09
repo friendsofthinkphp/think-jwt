@@ -117,7 +117,7 @@ class User {
             // 默认应用
             Jwt::verify($token);
             
-            // 默认应用
+            // 指定应用
             // Jwt::store('wechat')->verify($token);
         } catch (HasLoggedException $e) {
             // 已在其它终端登录
