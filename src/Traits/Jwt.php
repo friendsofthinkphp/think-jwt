@@ -245,7 +245,7 @@ trait Jwt
      */
     public function iss()
     {
-        $iss = $this->app->request->root(true);
+        $iss = $this->app->request->rootDomain();
 
         return $this->iss ?: $iss;
     }
