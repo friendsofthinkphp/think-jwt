@@ -14,8 +14,8 @@ return [
                 'type'         => 'Header',
                 'refresh'      => 50001,
                 'relogin'      => 50002,
-                'iss'          => '',
-                'aud'          => '',
+                'iss'          => 'client.tant',
+                'aud'          => 'server.tant',
                 'automaticRenewal' => false,
             ],
             'user' => [
