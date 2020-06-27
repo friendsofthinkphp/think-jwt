@@ -33,7 +33,8 @@ class RequestToken
             throw new JwtException('不支持此方式获取.', 500);
         }
 
-        $this->token = (new Header($this->app))->handle();
+        $namespace = '\\xiaodi\\JWTAuth\Handle\\' . $handle;
+        $this->token = (new $namespace($this->app))->handle();
 
         if (!$this->token) {
             throw new JwtException('获取Token失败.', 500);
