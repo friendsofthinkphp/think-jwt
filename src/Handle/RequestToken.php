@@ -30,21 +30,22 @@ class RequestToken
     public function get($handle): string
     {
         if (is_string($handle)) {
-            if (!in_array($handle, $this->handles)) {
-                throw new JwtException('不支持此方式获取.', 500);
-            }
-        } else if (is_array($handle) && !empty($handle)) {
-            $handles = $handle;
-            foreach($handles as $item) {
-                if (in_array($item, $this->handles)) {
-                    $handle = $item;
-                    continue;
-                }
-            }
+            $handles = explode('|', $handle);
         }
 
-        $namespace = '\\xiaodi\\JWTAuth\Handle\\' . $handle;
-        $this->token = (new $namespace($this->app))->handle();
+        foreach ($handles as $handle) {
+            if (in_array($handle, $this->handles)) {
+                $namespace = '\\xiaodi\\JWTAuth\Handle\\' . $handle;
+                $token = (new $namespace($this->app))->handle();
+                if ($token) {
+                    $this->token = $token;
+                    break;
+                }
+                continue;
+            } else {
+                throw new JwtException('不支持此方式获取.', 500);
+            }
+        }
 
         if (!$this->token) {
             throw new JwtException('获取Token失败.', 500);
