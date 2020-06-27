@@ -14,6 +14,7 @@ use xiaodi\JWTAuth\Exception\JWTException;
 use xiaodi\JWTAuth\Exception\JWTInvalidArgumentException;
 use xiaodi\JWTAuth\Exception\TokenAlreadyEexpired;
 use xiaodi\JWTAuth\Handle\RequestToken;
+use think\Container;
 
 class Jwt
 {
@@ -41,8 +42,9 @@ class Jwt
 
     public function store(string $name = '')
     {
-        $jwt = app('jwt', ['store' => $name], true);
+        $jwt = Container::getInstance()->make(Jwt::class, ['store' => $name], true);
         $this->app->bind('jwt',  $jwt);
+        
         return $jwt;
     }
 
@@ -118,6 +120,8 @@ class Jwt
             ->setNotBefore(time() + $this->notBefore())
             ->setExpiration($exp)
             ->set('refreshAt', $refreshAt);
+
+        $builder->set('store', $this->store);
 
         foreach ($claims as $key => $claim) {
             $builder->set($key, $claim);
