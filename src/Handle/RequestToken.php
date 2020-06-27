@@ -23,14 +23,24 @@ class RequestToken
     /**
      * 获取请求Token.
      *
-     * @param string $handle
+     * @param string|array $handle
      *
      * @return string
      */
-    public function get(string $handle): string
+    public function get($handle): string
     {
-        if (!in_array($handle, $this->handles)) {
-            throw new JwtException('不支持此方式获取.', 500);
+        if (is_string($handle)) {
+            if (!in_array($handle, $this->handles)) {
+                throw new JwtException('不支持此方式获取.', 500);
+            }
+        } else if (is_array($handle) && !empty($handle)) {
+            $handles = $handle;
+            foreach($handles as $item) {
+                if (in_array($item, $this->handles)) {
+                    $handle = $item;
+                    continue;
+                }
+            }
         }
 
         $namespace = '\\xiaodi\\JWTAuth\Handle\\' . $handle;
