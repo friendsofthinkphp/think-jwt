@@ -11,7 +11,7 @@ $ composer require xiaodi/think-jwt
 ```
 
 ## 使用
-~~1. 命令生成签名key~~
+1. 命令生成签名key
 ```sh
 $ php think jwt:make
 ```
@@ -44,11 +44,16 @@ return [
             'user' => [
                 'bind' => false,
                 'model'  => '',
-            ],
-            'blacklist' => [
-                'cacheKey' => 'admin',
-            ],
+            ]
         ]
+    ],
+    'manager' => [
+        // 缓存前缀
+        'prefix' => 'jwt',
+        // 黑名单缓存名
+        'blacklist' => 'blacklist',
+        // 白名单缓存名
+        'whitelist' => 'whitelist'
     ]
 ];
 
@@ -172,9 +177,10 @@ return [
             'token' => [
                 // ...其它配置
                 'type' => 'Header',
-                
                 // 'type' => 'Cookie',
                 // 'type' => 'Url',
+                // 支持多种方式获取
+                // 'type' => 'Header|Url',
             ]
         ]
     ]
