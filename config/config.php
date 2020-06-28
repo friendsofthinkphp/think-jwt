@@ -21,10 +21,15 @@ return [
             'user' => [
                 'bind' => false,
                 'model'  => '',
-            ],
-            'blacklist' => [
-                'cacheKey' => 'admin',
-            ],
+            ]
         ]
+    ],
+    'manager' => [
+        // 缓存前缀
+        'prefix' => 'jwt',
+        // 黑名单缓存名
+        'blacklist' => 'blacklist',
+        // 白名单缓存名
+        'whitelist' => 'whitelist'
     ]
 ];

@@ -13,7 +13,6 @@ class JwtService extends \think\Service
         $this->app->bind('jwt', \xiaodi\JWTAuth\Jwt::class);
         $this->app->bind('jwt.manager', \xiaodi\JWTAuth\Manager::class);
         $this->app->bind('jwt.user', \xiaodi\JWTAuth\User::class);
-        $this->app->bind('jwt.blacklist', \xiaodi\JWTAuth\Blacklist::class);
     }
 
     public function boot()

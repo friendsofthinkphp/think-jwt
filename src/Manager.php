@@ -7,16 +7,34 @@ namespace xiaodi\JWTAuth;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Parser;
 use think\App;
+use xiaodi\JWTAuth\Exception\JWTException;
 
 class Manager
 {
-    protected $store;
     protected $cache;
 
     public function __construct(App $app)
     {
         $this->app = $app;
         $this->cache = $this->getDefaultCache();
+        $this->config = $this->getConfig();
+    }
+
+
+    /**
+     * 获取 配置
+     *
+     * @return void
+     */
+    public function getConfig()
+    {
+        $config = $this->app->config->get("jwt.manager", []);
+
+        if (empty($config)) {
+            throw new JWTException("jwt manager 未配置完整.", 500);
+        }
+
+        return $config;
     }
 
     /**
@@ -41,7 +59,7 @@ class Manager
         $jti = $token->getClaim('jti');
         $store = $token->getClaim('store');
 
-        if ($jwt = $this->getUidToken($jti, $store)) {
+        if ($jwt = $this->getLatestToken($jti, $store)) {
             $oldToken = (new Parser)->parse($jwt);
             $this->addBlackList($oldToken);
         }
@@ -60,7 +78,7 @@ class Manager
     {
         $jti = $token->getClaim('jti');
         $store = $token->getClaim('store');
-        $key = $this->getUidWhiteKey($jti, $store);
+        $key = $this->makeWhitelistKey($jti, $store);
         $exp = $token->getClaim('exp') - time();
 
         $this->cache->set($key, (string) $token, $exp);
@@ -76,8 +94,20 @@ class Manager
      */
     protected function addWhiteStore($store, $value)
     {
-        $key = 'jwt' . ':' . 'whitelist' . ':' . $store;
-        $this->cache->push($key, $value);
+        $key = $this->makeKey([
+            $this->config['prefix'],
+            $this->config['whitelist'],
+            $store
+        ]);
+
+        $init = [];
+        $values = $this->cache->get($key, serialize($init));
+        if (is_string($values)) {
+            $values = unserialize($values);
+        }
+
+        array_push($values, $value);
+        $this->cache->set($key, $values);
     }
 
     /**
@@ -89,45 +119,69 @@ class Manager
     {
         $jti = $token->getClaim('jti');
         $store = $token->getClaim('store');
-        $key = $this->getUidBlackKey($jti, $store);
+        $key = $this->makeBlacklistKey($jti, $store);
 
         $exp = $token->getClaim('exp') - time();
-        $key .= ':' . md5((string)$token);
+        $key .= ':' . md5((string) $token);
         $this->cache->set($key, (string) $token, $exp);
     }
 
     /**
-     * 获取用户最新token
+     * 获取用户应用下最新token
      *
      * @param [type] $jti
      * @return void
      */
-    public function getUidToken($jti, $store)
+    public function getLatestToken($jti, $store)
     {
-        $key = $this->getUidWhiteKey($jti, $store);
+        $key = $this->makeWhitelistKey($jti, $store);
         return $this->cache->get($key);
     }
 
     /**
-     * 获取jti 白名单 key
+     * 获取 白名单 key
      *
      * @param string $jti
      * @return string
      */
-    public function getUidWhiteKey($jti, $store)
+    public function makeWhitelistKey($jti, $store)
     {
-        return 'jwt' . ':' . 'whitelist' . ':' . $store . ':' . $jti;
+        return $this->makeKey([
+            $this->config['prefix'],
+            $this->config['whitelist'],
+            $store,
+            $jti
+        ]);
     }
 
     /**
-     * 获取jti 黑名单 key
+     * 获取 黑名单 key
      *
-     * @param [type] $jti
-     * @return void
+     * @param string $jti
+     * @param string $store
+     * @return string
      */
-    public function getUidBlackKey($jti, $store)
+    public function makeBlacklistKey($jti, $store)
     {
-        return 'jwt' . ':' . 'blacklist' . ':' . $store . ':' . $jti;
+        return $this->makeKey([
+            $this->config['prefix'],
+            $this->config['blacklist'],
+            $store,
+            $jti
+        ]);
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param array $value
+     * @return string
+     */
+    protected function makeKey(array $value)
+    {
+        $key = implode(':', $value);
+
+        return $key;
     }
 
     /**
@@ -165,35 +219,79 @@ class Manager
     {
         $jti = $token->getClaim('jti');
         $store = $token->getClaim('store');
-        $key = $this->getUidBlackKey($jti, $store);
-        $key .= ':' . md5((string)$token);
+        $key = $this->makeBlacklistKey($jti, $store);
+        $key .= ':' . md5((string) $token);
+
         return $this->cache->has($key);
     }
 
+    public function getStoreWhitelistKey($store)
+    {
+        $arr = [
+            $this->config['prefix'],
+            $this->config['whitelist'],
+            $store
+        ];
+
+        $key = implode(':', $arr);
+
+        return $key;
+    }
+
     /**
-     * 删除应用所有白名单内的Token
+     * 将应用下所有Token加入到黑名单 （强制下线）
      *
-     * @param [type] $store
+     * @param string $store
      * @return void
      */
-    public function resetStoreWhiteToken($store)
+    public function joinToBlacklist($store)
     {
-        $key = 'jwt' . ':' . 'whitelist' . ':' . $store;
-
-        $keys = $this->cache->get($key);
-
+        $key = $this->makeStoreWhitelistKey($store);
+        $keys = $this->storeLoggedKeys($store);
         $parse = new Parser();
         if ($keys) {
-            foreach($keys as $item) {
+            foreach ($keys as $item) {
                 $token = $this->cache->get($item);
                 if ($token) {
                     $this->cache->delete($item);
                     $token = $parse->parse($token);
-                    $store = $token->getClaim('store');
-                    $this->addBlackList($token, $store);
+                    $this->addBlackList($token);
                 }
             }
             $this->cache->delete($key);
         }
+    }
+
+    protected function makeStoreWhitelistKey($store)
+    {
+        return $this->makeKey([
+            $this->config['prefix'],
+            $this->config['whitelist'],
+            $store
+        ]);
+    }
+
+    /**
+     * 获取应用下所有已登录的token
+     *
+     * @param string $store
+     * @return array
+     */
+    public function storeLoggedKeys($store)
+    {
+        $key = $this->makeStoreWhitelistKey($store);
+
+        return $this->cache->get($key);
+    }
+
+    /**
+     * 强制手动注销指定用户
+     *
+     * @param string|array $uid
+     * @return void
+     */
+    public function logoutByUid($uid)
+    {
+        // todo
     }
 }
