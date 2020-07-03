@@ -22,6 +22,11 @@ class Jwt
 
     public function handle($request, \Closure $next, $store = 'admin')
     {
+        // 暂时修复 6.0.3 options 问题
+        if ($request->isOptions()) {
+            return $next($request);
+        }
+        
         if (true === $this->app->jwt->store($store)->verify()) {
 
             $jwt_user = $this->app['jwt.user'];
