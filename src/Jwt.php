@@ -300,6 +300,14 @@ class Jwt
      */
     protected function validateToken(Token $token)
     {
+        $claims = $token->getClaims();
+        
+        // 注销没有store参数的Token
+        if (!is_set($claims['store'])) {
+            $this->logout($token);
+            throw new TokenAlreadyEexpired('此 Token 已注销，请重新登录', $this->getReloginCode());
+        }
+        
         // 是否在黑名单
         if ($this->app['jwt.manager']->hasBlacklist($token)) {
             throw new TokenAlreadyEexpired('此 Token 已注销，请重新登录', $this->getReloginCode());
