@@ -303,7 +303,7 @@ class Jwt
         $claims = $token->getClaims();
         
         // 注销没有store参数的Token
-        if (!is_set($claims['store'])) {
+        if (!isset($claims['store'])) {
             $this->logout($token);
             throw new TokenAlreadyEexpired('此 Token 已注销，请重新登录', $this->getReloginCode());
         }
