@@ -36,8 +36,9 @@ class JwtCommand extends Command
         $file->addComment('Jwt 配置');
         $file->setStrictTypes();
 
-        $config = config('jwt.apps.admin');
-        $config['token']['signerKey'] = randomKey();
+        $config = config('jwt');
+        $default = $config['default'];
+        $config['apps'][$default]['token']['signerKey'] = randomKey();
         $config = 'return ' . Helpers::dump($config) . ';';
 
         file_put_contents($this->app->getConfigPath() . 'jwt.php', $file . $config);
