@@ -41,7 +41,7 @@ class Jwt
                 $request->user = $info;
                 
                 // 绑定当前用户模型
-                $model = $info->getClass();
+                $model = $user->getClass();
                 $this->app->bind($model, $info);
             }
 
