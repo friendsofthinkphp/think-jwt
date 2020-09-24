@@ -29,16 +29,20 @@ class Jwt
         
         if (true === $this->app->jwt->store($store)->verify()) {
 
-            $jwt_user = $this->app['jwt.user'];
+            $user = $this->app['jwt.user'];
 
-            if ($jwt_user->bind()) {
-                $user = $jwt_user->get();
+            if ($user->bind()) {
+                $info = $user->get();
+                if (!$info){
+                    throw new JWTException('没有此用户', 401);
+                } 
+                
                 // 路由注入
-                $request->user = $user;
-
+                $request->user = $info;
+                
                 // 绑定当前用户模型
-                $model = $jwt_user->getClass();
-                $this->app->bind($model, $user);
+                $model = $info->getClass();
+                $this->app->bind($model, $info);
             }
 
             return $next($request);
