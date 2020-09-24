@@ -59,9 +59,9 @@ class User
     /**
      * 获取 具用登录信息的用户模型.
      *
-     * @return Model
+     * @return Model | null
      */
-    public function get(): Model
+    public function get()
     {
         $token = $this->app->jwt->getToken();
         
@@ -77,7 +77,7 @@ class User
 
         $namespace = $this->getClass();
         $model = new $namespace();
-        $user = $model->findOrFail($uid);
+        $user = $model->find($uid);
 
         return $user;
     }
