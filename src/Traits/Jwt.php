@@ -34,7 +34,7 @@ trait Jwt
      *
      * @return string
      */
-    public function type()
+    public function type(): string
     {
         return $this->type;
     }
@@ -52,9 +52,9 @@ trait Jwt
     /**
      * 获取 用户表唯一标识值名.
      *
-     * @return void
+     * @return string
      */
-    public function getUniqidKey()
+    public function getUniqidKey(): string
     {
         return $this->uniqidKey;
     }
@@ -62,9 +62,9 @@ trait Jwt
     /**
      * 获取 刷新Token TTL.
      *
-     * @return void
+     * @return integer
      */
-    public function refreshTTL()
+    public function refreshTTL(): int
     {
         return (int) $this->refreshTTL;
     }
@@ -82,9 +82,9 @@ trait Jwt
     }
 
     /**
-     * @return void
+     * @return integer
      */
-    public function getReloginCode()
+    public function getReloginCode(): int
     {
         return (int) $this->relogin;
     }
@@ -92,9 +92,9 @@ trait Jwt
     /**
      * 获取 检测延迟
      *
-     * @return void
+     * @return integer
      */
-    public function notBefore()
+    public function notBefore(): int
     {
         return (int) $this->notBefore;
     }
@@ -114,9 +114,9 @@ trait Jwt
     /**
      * 获取  TTl.
      *
-     * @return void
+     * @return integer
      */
-    public function ttl()
+    public function ttl(): int
     {
         return (int) $this->expiresAt;
     }
@@ -134,9 +134,9 @@ trait Jwt
     }
 
     /**
-     * @return void
+     * @return integer
      */
-    public function getAlreadyCode()
+    public function getAlreadyCode(): int
     {
         return $this->refresh;
     }
