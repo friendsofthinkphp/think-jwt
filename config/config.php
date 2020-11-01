@@ -1,26 +1,28 @@
 <?php
 
 return [
-    'default' => 'admin',
-    'apps' => [
+    'stores' => [
         'admin' => [
+            'sso' => [
+                'enable' => false,
+            ],
             'token' => [
-                'uniqidKey'    => 'uid',
-                'signerKey'    => '',
-                'notBefore'    => 0,
-                'expiresAt'    => 3600,
-                'refreshTTL'   => 7200,
+                'unique_id_key'    => 'uid',
+                'signer_key'    => 'tant',
+                'not_before'    => 0,
+                'expires_at'    => 3600,
+                'refresh_ttL'   => 7200,
                 'signer'       => 'Lcobucci\JWT\Signer\Hmac\Sha256',
                 'type'         => 'Header',
-                'refresh'      => 50001,
-                'relogin'      => 50002,
+                'relogin_code'      => 50001,
+                'refresh_code'      => 50002,
                 'iss'          => 'client.tant',
                 'aud'          => 'server.tant',
-                'automaticRenewal' => false,
+                'automatic_renewal' => false,
             ],
             'user' => [
                 'bind' => false,
-                'model'  => '',
+                'class'  => null,
             ]
         ]
     ],
