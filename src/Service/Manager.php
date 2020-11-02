@@ -6,9 +6,7 @@ namespace xiaodi\JWTAuth\Service;
 
 use Lcobucci\JWT\Token;
 use think\App;
-use think\Container;
 use xiaodi\JWTAuth\Config\Manager as Config;
-use xiaodi\JWTAuth\Exception\JWTException;
 
 class Manager
 {
@@ -37,7 +35,7 @@ class Manager
         $this->config = new Config($options);
     }
 
-    public function login(Token $token)
+    public function login(Token $token): void
     {
         $jti = $token->getClaim('jti');
         $store = $token->getClaim('store');
@@ -45,34 +43,98 @@ class Manager
         $exp = $token->getClaim('exp') - time();
 
         if ($this->app->get('jwt.sso')->getEnable()) {
-            $this->pushBlacklist($store, $jti, (string) $token, $exp);
+            $this->handleSSO($store, $jti, (string) $token, $exp);
         }
-        
+
         $this->pushWhitelist($store, $jti, (string) $token, $exp);
     }
 
-    protected function pushWhitelist($store, $jti, string $value, $exp)
+    protected function handleSSO($store, $jti, $token, $exp)
     {
-        $this->setCache($store, 'whitelist', $jti, $value, $exp);
+        $key = $this->formatWhiteKey($store, $jti);
+        if ($this->app->cache->has($key)) {
+            $this->clearCache($store, $this->config->getWhitelist(), $jti);
+            $this->pushBlacklist($store, $jti, (string) $token, $exp);
+        }
     }
 
-    protected function pushBlacklist($store, $jti, string $value, $exp)
+    protected function pushWhitelist($store, $jti, string $value, $exp): void
     {
-        $this->setCache($store, 'blacklist', $jti, $value, $exp);
+        $this->setCache($store, $this->config->getWhitelist(), $jti, $value, $exp);
     }
 
-    private function setCache($store, $type, $uid, $value, $exp)
+    protected function pushBlacklist($store, $jti, string $value, $exp): void
     {
-        $key = implode(':', ['jwt', $store, $type, $uid]);
-        $this->app->cache->set($key, $value, $exp);
+        $this->setCache($store, $this->config->getBlacklist(), $jti, $value, $exp);
     }
 
-    public function logout()
-    {}
+    public function logout(Token $token): void
+    {
+        $jti = $token->getClaim('jti');
+        $store = $token->getClaim('store');
 
-    public function destroyStore($store)
-    {}
+        $exp = $token->getClaim('exp') - time();
+        $this->pushBlacklist($store, $jti, (string) $token, $exp);
+    }
 
-    public function destroyToken($id)
-    {}
+    public function destroyStoreWhitelist($store): void
+    {
+        $this->clearStoreWhitelist($store);
+    }
+
+    public function destroyStoreBlacklist($store): void
+    {
+        $this->clearStoreBlacklist($store);
+    }
+
+    public function destroyToken($id, $store): void
+    {
+        $this->clearCache($store, $this->config->getWhitelist(), $id);
+    }
+
+    protected function clearStoreWhitelist($store): void
+    {
+        $this->clearTag($store . '-' . $this->config->getWhitelist());
+    }
+
+    protected function clearStoreBlacklist($store): void
+    {
+        $this->clearTag($store . '-' . $this->config->getBlacklist());
+    }
+
+    private function clearTag($tag): void
+    {
+        $this->app->cache->tag($tag)->clear();
+    }
+
+    private function setCache($store, $type, $uid, $value, $exp): void
+    {
+        $key = $this->formatKey($store, $type, $uid);
+
+        $this->app->cache->tag($store . '-' . $type)->set($key, $value, $exp);
+    }
+
+    protected function formatWhitelist($store, $uid): string
+    {
+        return $this->formatKey($store, $this->config->getWhitelist(), $uid);
+    }
+
+    protected function formatBlacklist($store, $uid): string
+    {
+        return $this->formatKey($store, $this->config->getBlacklist(), $uid);
+    }
+
+    private function formatKey($store, $type, $uid): string
+    {
+        $key = implode(':', [$this->config->getPrefix(), $store, $type, $uid]);
+
+        return $key;
+    }
+
+    private function clearCache($store, $type, $uid): void
+    {
+        $key = $this->formatKey($store, $type, $uid);
+
+        $this->app->cache->delete($key);
+    }
 }

@@ -81,4 +81,9 @@ class Jwt
     {
         return $this->app->get('jwt.token')->verify($token);
     }
+
+    public function destroyStoreWhitelist($store)
+    {
+        return $this->app->get('jwt.manager')->destroyStoreWhitelist($store);
+    }
 }
