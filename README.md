@@ -189,7 +189,7 @@ return [
 
 前端需要接收最新 Token，下次异步请求时，携带此 Token。
 
-## 注销应用Token
+## 注销应用Token(所有)
 
 注销指定应用下缓存的用户 （强制下线 重新登录）
 
@@ -197,5 +197,17 @@ return [
 
 $store = 'wechat';
 
-app('jwt.manager')->resetStoreWhiteToken($store);
+app('jwt.manager')->destroyStoreWhitelist($store);
+```
+
+## 注销应用Token(指定某个)
+
+注销指定某个用户（强制下线 重新登录）
+
+```php
+
+$store = 'wechat';
+$uid = '9527';
+
+app('jwt.manager')->destroyToken($id, $store);
 ```
