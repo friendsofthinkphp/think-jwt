@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace xiaodi\JWTAuth\Service;
 
@@ -11,7 +11,9 @@ use Lcobucci\JWT\ValidationData;
 use Lcobucci\JWT\Parser;
 use xiaodi\JWTAuth\Config\Token as Config;
 use xiaodi\JWTAuth\Exception\JWTException;
+use xiaodi\JWTAuth\Exception\JWTInvalidArgumentException;
 use xiaodi\JWTAuth\Exception\TokenAlreadyEexpired;
+use xiaodi\JWTAuth\Handle\RequestToken;
 
 /**
  * Undocumented class
@@ -198,5 +200,19 @@ class Token
         }
 
         return true;
+    }
+
+    /**
+     * 自动获取请求下的Token.
+     *
+     * @return string
+     */
+    protected function getRequestToken(): string
+    {
+        $requestToken = new RequestToken($this->app);
+
+        $token = $requestToken->get($this->config->getTokenType());
+
+        return $token;
     }
 }

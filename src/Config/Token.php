@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace xiaodi\JWTAuth\Config;
 
@@ -88,4 +88,8 @@ class Token
         return $this->automatic_renewal;
     }
 
+    public function getTokenType()
+    {
+        return $this->type;
+    }
 }

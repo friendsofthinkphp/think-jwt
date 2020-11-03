@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace xiaodi\JWTAuth\Service;
 
@@ -78,8 +78,12 @@ class Jwt
      * @param string $token
      * @return boolean
      */
-    public function verify(string $token): bool
+    public function verify(?string $token = null): bool
     {
+        if (!$token) {
+            $token = $this->app->get('jwt.token')->getRequestToken();
+        }
+
         return $this->app->get('jwt.token')->verify($token);
     }
 
