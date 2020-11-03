@@ -8,6 +8,7 @@ use xiaodi\JWTAuth\Service\Jwt;
 use xiaodi\JWTAuth\Service\Manager;
 use xiaodi\JWTAuth\Service\Token;
 use xiaodi\JWTAuth\Service\SSO;
+use xiaodi\JWTAuth\Service\User;
 
 class JwtService extends \think\Service
 {
@@ -17,6 +18,7 @@ class JwtService extends \think\Service
         $this->app->bind('jwt.manager', Manager::class);
         $this->app->bind('jwt.token', Token::class);
         $this->app->bind('jwt.sso', SSO::class);
+        $this->app->bind('jwt.user', User::class);
     }
 
     public function boot()

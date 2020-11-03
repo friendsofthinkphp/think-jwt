@@ -67,8 +67,9 @@ class Jwt
         return $token;
     }
 
-    public function user()
+    public function getToken()
     {
+        return $this->app->get('jwt.token')->getToken();
     }
 
     /**
@@ -85,5 +86,10 @@ class Jwt
     public function destroyStoreWhitelist($store)
     {
         return $this->app->get('jwt.manager')->destroyStoreWhitelist($store);
+    }
+
+    public function user()
+    {
+        return $this->app->get('jwt.user');
     }
 }

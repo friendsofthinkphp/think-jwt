@@ -33,6 +33,12 @@ class Token
      */
     protected $claims;
 
+    /**
+     *
+     * @var JwtToken
+     */
+    protected $token;
+
     public function __construct(App $app)
     {
         $this->app = $app;
@@ -141,27 +147,37 @@ class Token
         return $token;
     }
 
+    /**
+     * 验证成功的Token
+     *
+     * @return JWTToken
+     */
+    public function getToken(): ?JwtToken
+    {
+        return $this->token;
+    }
+
     public function verify(string $token): ?bool
     {
-        $token = $this->parseToken($token);
+        $this->token = $this->parseToken($token);
 
-        if (false === $token->verify($this->config->getSigner(), $this->config->makeSignerKey())) {
+        if (false === $this->token->verify($this->config->getSigner(), $this->config->makeSignerKey())) {
             throw new JWTException('此 Token 与 密钥不匹配', $this->config->getReloginCode());
         }
 
         // Token 是否已可用
         $now = time();
-        $exp = $token->getClaim('nbf');
+        $exp = $this->token->getClaim('nbf');
         if ($now < $exp) {
             throw new JWTException('此 Token 暂未可用', 500);
         }
 
         // 是否已过期
-        if (true === $token->isExpired()) {
-            if ($now <= $token->getClaim('refreshAt')) {
+        if (true === $this->token->isExpired()) {
+            if ($now <= $this->token->getClaim('refreshAt')) {
                 // 是否开启自动续签
                 if ($this->config->getAutomaticRenewal()) {
-                    $token = $this->automaticRenewalToken($token);
+                    $this->token = $this->automaticRenewalToken($this->token);
                 } else {
                     throw new TokenAlreadyEexpired('Token 已过期，请重新刷新', $this->config->getReloginCode());
                 }
@@ -172,12 +188,12 @@ class Token
 
         $data = new ValidationData();
 
-        $jwt_id = $token->getHeader('jti');
+        $jwt_id = $this->token->getHeader('jti');
         $data->setIssuer($this->config->getIss());
         $data->setAudience($this->config->getAud());
         $data->setId($jwt_id);
 
-        if (!$token->validate($data)) {
+        if (!$this->token->validate($data)) {
             throw new JWTException('此 Token 效验不通过', $this->config->getReloginCode());
         }
 
