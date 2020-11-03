@@ -212,12 +212,22 @@ class Token
      *
      * @return string
      */
-    protected function getRequestToken(): string
+    public function getRequestToken(): string
     {
         $requestToken = new RequestToken($this->app);
 
         $token = $requestToken->get($this->config->getTokenType());
 
         return $token;
+    }
+
+    public function getType(): string
+    {
+        return $this->config->getTokenType();
+    }
+
+    public function getRefreshTTL()
+    {
+        return $this->config->getRefreshTTL();
     }
 }

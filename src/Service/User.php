@@ -42,7 +42,7 @@ class User
         return $options;
     }
 
-    protected function getClass(): string
+    public function getClass(): string
     {
         $store = $this->getStore();
         $class = $this->config->getClass();
@@ -51,6 +51,11 @@ class User
         }
 
         return $class;
+    }
+
+    public function getBind()
+    {
+        return $this->config->getBind();
     }
 
     public function get()

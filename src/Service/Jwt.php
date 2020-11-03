@@ -96,4 +96,19 @@ class Jwt
     {
         return $this->app->get('jwt.user');
     }
+
+    public function type()
+    {
+        return $this->app->get('jwt.token')->getType();
+    }
+
+    public function refreshTTL()
+    {
+        return $this->app->get('jwt.token')->getRefreshTTL();
+    }
+
+    public function ttl()
+    {
+        return $this->app->get('jwt.token')->getRefreshTTL();
+    }
 }
