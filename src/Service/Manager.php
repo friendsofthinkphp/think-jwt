@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace xiaodi\JWTAuth\Service;
 
@@ -77,6 +77,19 @@ class Manager
         $this->pushBlacklist($store, $jti, (string) $token, $exp);
     }
 
+    public function wasBan(Token $token): bool
+    {
+        $jti = $token->getClaim('jti');
+        $store = $token->getClaim('store');
+
+        return $this->getBlacklist($store, $jti) ? true : false;
+    }
+
+    protected function getBlacklist($store, $jti)
+    {
+        return $this->getCache($store, $jti, $this->config->getBlacklist());
+    }
+
     public function destroyStoreWhitelist($store): void
     {
         $this->clearStoreWhitelist($store);
@@ -136,5 +149,12 @@ class Manager
         $key = $this->formatKey($store, $type, $uid);
 
         $this->app->cache->delete($key);
+    }
+
+    private function getCache($store, $uid, $type)
+    {
+        $key = implode('', [$this->config->getPrefix(), $store, $type, $uid]);
+
+        return $this->app->cache->get($key);
     }
 }

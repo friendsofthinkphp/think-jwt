@@ -186,6 +186,11 @@ class Token
             } else {
                 throw new TokenAlreadyEexpired('Token 刷新时间已过，请重新登录', $this->config->getReloginCode());
             }
+        } else {
+            // 是否存在黑名单
+            if (true === $this->app->get('jwt.manager')->wasBan($this->token)) {
+                throw new TokenAlreadyEexpired('Token 已被禁用，请重新登录', $this->config->getReloginCode());
+            }
         }
 
         $data = new ValidationData();
