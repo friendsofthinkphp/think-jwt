@@ -187,6 +187,7 @@ class Token
                 throw new TokenAlreadyEexpired('Token 刷新时间已过，请重新登录', $this->config->getReloginCode());
             }
         } else {
+            dump($this->app->get('jwt.manager')->wasBan($this->token));
             // 是否存在黑名单
             if (true === $this->app->get('jwt.manager')->wasBan($this->token)) {
                 throw new TokenAlreadyEexpired('Token 已被禁用，请重新登录', $this->config->getReloginCode());
@@ -205,6 +206,33 @@ class Token
         }
 
         return true;
+    }
+
+    public function refresh(string $token = null): JwtToken
+    {
+        $token = $token ?: $this->getRequestToken();
+        $token = $this->parseToken($token);
+
+        $claims = $token->getClaims();
+
+        unset($claims['iat']);
+        unset($claims['jti']);
+        unset($claims['nbf']);
+        unset($claims['exp']);
+        unset($claims['iss']);
+        unset($claims['aud']);
+
+        $this->app->get('jwt.manager')->logout($token);
+
+        return $this->make($claims);
+    }
+
+    public function logout(?string $token = null): void
+    {
+        $token = $token ?: $this->getRequestToken();
+        $token = $this->parseToken($token);
+
+        $this->app->get('jwt.manager')->logout($token);
     }
 
     /**

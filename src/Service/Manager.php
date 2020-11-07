@@ -87,6 +87,7 @@ class Manager
 
     protected function getBlacklist($store, $jti)
     {
+        dump($this->config->getBlacklist());
         return $this->getCache($store, $jti, $this->config->getBlacklist());
     }
 
@@ -153,8 +154,8 @@ class Manager
 
     private function getCache($store, $uid, $type)
     {
-        $key = implode('', [$this->config->getPrefix(), $store, $type, $uid]);
-
+        $key = implode(':', [$this->config->getPrefix(), $store, $type, $uid]);
+        
         return $this->app->cache->get($key);
     }
 }

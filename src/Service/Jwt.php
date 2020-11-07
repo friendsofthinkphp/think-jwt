@@ -111,4 +111,14 @@ class Jwt
     {
         return $this->app->get('jwt.token')->getRefreshTTL();
     }
+
+    public function refresh(?string $token = null)
+    {
+        return $this->app->get('jwt.token')->refresh($token);
+    }
+
+    public function logout(?string $token = null)
+    {
+        return $this->app->get('jwt.token')->logout($token);
+    }
 }
