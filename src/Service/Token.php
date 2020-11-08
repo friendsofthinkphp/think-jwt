@@ -181,13 +181,12 @@ class Token
                 if ($this->config->getAutomaticRenewal()) {
                     $this->token = $this->automaticRenewalToken($this->token);
                 } else {
-                    throw new TokenAlreadyEexpired('Token 已过期，请重新刷新', $this->config->getReloginCode());
+                    throw new TokenAlreadyEexpired('Token 已过期，请重新刷新', $this->config->getRefreshCode());
                 }
             } else {
                 throw new TokenAlreadyEexpired('Token 刷新时间已过，请重新登录', $this->config->getReloginCode());
             }
         } else {
-            dump($this->app->get('jwt.manager')->wasBan($this->token));
             // 是否存在黑名单
             if (true === $this->app->get('jwt.manager')->wasBan($this->token)) {
                 throw new TokenAlreadyEexpired('Token 已被禁用，请重新登录', $this->config->getReloginCode());

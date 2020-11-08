@@ -121,4 +121,9 @@ class Jwt
     {
         return $this->app->get('jwt.token')->logout($token);
     }
+
+    public function destroyToken($jti, $store)
+    {
+        return $this->app->get('jwt.manager')->destroyToken($jti, $store);
+    }
 }
