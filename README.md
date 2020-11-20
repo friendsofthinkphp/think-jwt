@@ -109,6 +109,8 @@ public function login()
 
 ## Token 验证
 
+自动获取当前应用（多应用下）配置。
+
 ### 手动验证
 ```php
 use xiaodi\JWTAuth\Facade\Jwt;
@@ -135,7 +137,11 @@ class User {
 ```php
 use xiaodi\JWTAuth\Middleware\Jwt;
 
+// 自动获取当前应用配置
 Route::get('/hello', 'index/index')->middleware(Jwt::class);
+
+// 自定义应用 使用api应用配置
+Route::get('/hello', 'index/index')->middleware(Jwt::class, 'api');
 ```
 
 ## Token 自动获取
