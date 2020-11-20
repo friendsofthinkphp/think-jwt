@@ -33,9 +33,11 @@ class Jwt
         $this->init();
     }
 
-    public function store(string $store): self
+    public function store(string $store = null): self
     {
-        $this->store = $store;
+        if ($store) {
+            $this->store = $store;
+        }
         
         return $this;
     }

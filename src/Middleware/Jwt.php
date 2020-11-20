@@ -19,14 +19,14 @@ class Jwt
         $this->app = $app;
     }
 
-    public function handle($request, \Closure $next)
+    public function handle($request, \Closure $next, $store = null)
     {
         // 暂时修复 6.0.3 options 问题
         if ($request->isOptions()) {
             return $next($request);
         }
 
-        if (true === $this->app->get('jwt')->verify()) {
+        if (true === $this->app->get('jwt')->store($store)->verify()) {
 
             $user = $this->app->get('jwt.user');
 
