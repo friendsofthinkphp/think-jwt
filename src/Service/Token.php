@@ -64,7 +64,11 @@ class Token
         $store = $this->getStore();
         $options = $this->app->config->get("jwt.stores.{$store}.token", []);
 
-        return $options;
+        if (!empty($options)) {
+            return $options;
+        }
+
+        throw new JWTException($store . '应用 Token 配置未完整', 500);
     }
 
     protected function makeId(array $claims)
