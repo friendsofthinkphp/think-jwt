@@ -39,6 +39,8 @@ class Jwt
                     $model = $user->getClass();
                     $this->app->bind($model, $info);
                 }
+            } else {
+                throw new JWTException('登录校验已失效, 请重新登录', 401);
             }
 
             return $next($request);
