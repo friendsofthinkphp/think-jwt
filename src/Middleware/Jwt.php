@@ -34,18 +34,27 @@ class Jwt
                 if ($info = $user->get()) {
                     // 路由注入
                     $request->user = $info;
-
+                    
                     // 绑定当前用户模型
                     $model = $user->getClass();
                     $this->app->bind($model, $info);
+                    
+                    // 绑定用户后一些业务处理
+                    $this->bindUserAfter($request);
                 }
             } else {
                 throw new JWTException('登录校验已失效, 请重新登录', 401);
             }
-
+            
             return $next($request);
         }
 
         throw new JWTException('Token 验证不通过', 401);
+    }
+    
+    protected function bindUserAfter($request)
+    {
+        // 当前用户
+        // $request->user
     }
 }
