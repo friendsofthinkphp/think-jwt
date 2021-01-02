@@ -58,7 +58,7 @@ class User
         return $this->config->getBind();
     }
 
-    public function get()
+    public function find()
     {
         $class = $this->getClass();
         $token = $this->app->get('jwt')->getToken();
