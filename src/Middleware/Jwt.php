@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace xiaodi\JWTAuth\Middleware;
 
 use think\App;
+use think\Response;
 use xiaodi\JWTAuth\Exception\JWTException;
 
 /**
@@ -21,37 +22,34 @@ class Jwt
 
     public function handle($request, \Closure $next, $store = null)
     {
-        // 暂时修复 6.0.3 options 问题
-        if ($request->isOptions()) {
-            return $next($request);
+        if ($request->method(true) == 'OPTIONS') {
+            return Response::create()->code(204)->header($header);
         }
 
         if (true === $this->app->get('jwt')->store($store)->verify()) {
 
-            $user = $this->app->get('jwt.user');
-
-            if ($user->getBind()) {
-                if ($info = $user->get()) {
+            if ($this->app->get('jwt.user')->bind()) {
+                if ($user = $this->app->get('jwt.user')->find()) {
                     // 路由注入
-                    $request->user = $info;
-                    
+                    $request->user = $user;
+
                     // 绑定当前用户模型
-                    $model = $user->getClass();
-                    $this->app->bind($model, $info);
-                    
+                    $class = $user->getClass();
+                    $this->app->bind($class, $user);
+
                     // 绑定用户后一些业务处理
                     $this->bindUserAfter($request);
+                } else {
+                    throw new JWTException('登录校验已失效, 请重新登录', 401);
                 }
-            } else {
-                throw new JWTException('登录校验已失效, 请重新登录', 401);
             }
-            
+
             return $next($request);
         }
 
         throw new JWTException('Token 验证不通过', 401);
     }
-    
+
     protected function bindUserAfter($request)
     {
         // 当前用户
