@@ -112,15 +112,17 @@ class Manager
 
         $rule = implode(':', [$this->config->getPrefix(), $store, $type, $id]);
         $keys = $this->app->cache->getTagItems($tag);
-
         $parser = new Parser();
 
         foreach($keys as $key) {
+
             if (false !== strpos($key, $rule)) {
                 $value = $this->app->cache->get($key);
-                $token = $parser->parse($value);
 
-                $this->pushBlacklist($token);
+                if ($value) {
+                    $token = $parser->parse($value);
+                    $this->pushBlacklist($token);
+                }
             }
         }
     }
