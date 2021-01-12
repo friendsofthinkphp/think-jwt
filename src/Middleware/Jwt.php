@@ -23,18 +23,18 @@ class Jwt
     public function handle($request, \Closure $next, $store = null)
     {
         if ($request->method(true) == 'OPTIONS') {
-            return Response::create()->code(204)->header($header);
+            return Response::create()->code(204);
         }
 
         if (true === $this->app->get('jwt')->store($store)->verify()) {
 
-            if ($this->app->get('jwt.user')->bind()) {
+            if ($this->app->get('jwt.user')->getBind()) {
                 if ($user = $this->app->get('jwt.user')->find()) {
                     // 路由注入
                     $request->user = $user;
 
                     // 绑定当前用户模型
-                    $class = $user->getClass();
+                    $class = $this->app->get('jwt.user')->getClass();
                     $this->app->bind($class, $user);
 
                     // 绑定用户后一些业务处理
