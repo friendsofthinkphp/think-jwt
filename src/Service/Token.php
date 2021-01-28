@@ -142,7 +142,7 @@ class Token
         return $token;
     }
 
-    protected function parseToken(string $token): JwtToken
+    public function parseToken(string $token): JwtToken
     {
         try {
             $token = (new Parser())->parse($token);
