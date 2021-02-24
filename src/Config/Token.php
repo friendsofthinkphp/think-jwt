@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace xiaodi\JWTAuth\Config;
 
 use Lcobucci\JWT\Signer;
-use Lcobucci\JWT\Signer\Key;
 use xiaodi\JWTAuth\Exception\JWTException;
-use think\App;
 
 class Token
 {
@@ -33,14 +31,13 @@ class Token
         }
     }
 
-    public function makeSignerKey()
+    public function getSigningKey()
     {
-        $key = $this->signer_key;
-        if (empty($key)) {
+        if (empty($this->signer_key)) {
             throw new JWTException('config signer_key required.', 500);
         }
 
-        return new Key($key);
+        return $this->signer_key;
     }
 
     public function getIdKey(): string

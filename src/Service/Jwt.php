@@ -62,11 +62,11 @@ class Jwt
      * @param array $claims
      * @return JwtToken
      */
-    public function token(array $claims): JwtToken
+    public function token($identifier, array $claims = []): JwtToken
     {
-        $token = $this->app->get('jwt.token')->make($claims);
+        $token = $this->app->get('jwt.token')->make($identifier, $claims);
 
-        $this->app->get('jwt.manager')->login($token);
+        // $this->app->get('jwt.manager')->login($token);
 
         return $token;
     }
