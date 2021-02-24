@@ -82,6 +82,11 @@ class Token
     {
         return $this->relogin_code;
     }
+    
+    public function getRefreshCode()
+    {
+        return $this->refresh_code;
+    }
 
     public function getAutomaticRenewal()
     {
@@ -92,4 +97,5 @@ class Token
     {
         return $this->type;
     }
+    
 }

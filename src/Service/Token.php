@@ -64,7 +64,11 @@ class Token
         $store = $this->getStore();
         $options = $this->app->config->get("jwt.stores.{$store}.token", []);
 
-        return $options;
+        if (!empty($options)) {
+            return $options;
+        }
+
+        throw new JWTException($store . '应用 Token 配置未完整', 500);
     }
 
     protected function makeId(array $claims)
@@ -138,7 +142,7 @@ class Token
         return $token;
     }
 
-    protected function parseToken(string $token): JwtToken
+    public function parseToken(string $token): JwtToken
     {
         try {
             $token = (new Parser())->parse($token);
@@ -181,7 +185,7 @@ class Token
                 if ($this->config->getAutomaticRenewal()) {
                     $this->token = $this->automaticRenewalToken($this->token);
                 } else {
-                    throw new TokenAlreadyEexpired('Token 已过期，请重新刷新', $this->config->getReloginCode());
+                    throw new TokenAlreadyEexpired('Token 已过期，请重新刷新', $this->config->getRefreshCode());
                 }
             } else {
                 throw new TokenAlreadyEexpired('Token 刷新时间已过，请重新登录', $this->config->getReloginCode());
@@ -205,6 +209,33 @@ class Token
         }
 
         return true;
+    }
+
+    public function refresh(string $token = null): JwtToken
+    {
+        $token = $token ?: $this->getRequestToken();
+        $token = $this->parseToken($token);
+
+        $claims = $token->getClaims();
+
+        unset($claims['iat']);
+        unset($claims['jti']);
+        unset($claims['nbf']);
+        unset($claims['exp']);
+        unset($claims['iss']);
+        unset($claims['aud']);
+
+        $this->app->get('jwt.manager')->logout($token);
+
+        return $this->make($claims);
+    }
+
+    public function logout(?string $token = null): void
+    {
+        $token = $token ?: $this->getRequestToken();
+        $token = $this->parseToken($token);
+
+        $this->app->get('jwt.manager')->logout($token);
     }
 
     /**

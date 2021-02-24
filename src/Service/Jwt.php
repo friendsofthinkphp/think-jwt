@@ -33,9 +33,13 @@ class Jwt
         $this->init();
     }
 
-    public function store(string $store)
+    public function store(string $store = null): self
     {
-        $this->store = $store;
+        if ($store) {
+            $this->store = $store;
+        }
+        
+        return $this;
     }
 
     public function getStore()
@@ -110,5 +114,20 @@ class Jwt
     public function ttl()
     {
         return $this->app->get('jwt.token')->getRefreshTTL();
+    }
+
+    public function refresh(?string $token = null)
+    {
+        return $this->app->get('jwt.token')->refresh($token);
+    }
+
+    public function logout(?string $token = null)
+    {
+        return $this->app->get('jwt.token')->logout($token);
+    }
+
+    public function destroyToken($jti, $store)
+    {
+        return $this->app->get('jwt.manager')->destroyToken($jti, $store);
     }
 }

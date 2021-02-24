@@ -44,9 +44,12 @@ class User
 
     public function getClass(): string
     {
-        $store = $this->getStore();
-        $class = $this->config->getClass();
-        if (!$class) {
+        $token = $this->app->get('jwt')->getToken();
+
+        try {
+            $class = $token->getClaim('model', $this->config->getClass());
+        } catch (\OutOfBoundsException $e) {
+            $store = $this->getStore();
             throw new JWTException("{$store}应用未配置用户模型文件");
         }
 
@@ -58,7 +61,7 @@ class User
         return $this->config->getBind();
     }
 
-    public function get()
+    public function find()
     {
         $class = $this->getClass();
         $token = $this->app->get('jwt')->getToken();

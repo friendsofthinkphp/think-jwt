@@ -8,6 +8,6 @@ class Url extends RequestToken
 {
     public function handle()
     {
-        return $this->app->request->param('token');
+        return $this->app->request->get('token');
     }
 }
