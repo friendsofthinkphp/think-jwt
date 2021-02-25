@@ -15,6 +15,7 @@ use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Constraint\ValidAt;
 use Lcobucci\Clock\SystemClock;
+use xiaodi\JWTAuth\Exception\JWTException;
 
 /**
  *
@@ -58,7 +59,7 @@ class Token
         $this->initJwtConfiguration();
     }
 
-    protected function initJwtConfiguration()
+    public function initJwtConfiguration()
     {
         $this->jwtConfiguration = Configuration::forSymmetricSigner(
             $this->config->getSigner(),
@@ -104,14 +105,19 @@ class Token
         return $now->modify("+{$ttl} sec");
     }
 
-    public function parseToken(string $token): JwtToken
+    /**
+     *
+     * @param string $token
+     * @return JwtToken
+     */
+    public function parse(string $token): JwtToken
     {
-        $token = $this->jwtConfiguration->parser()->parse($token);
-        return $token;
+        $this->token = $this->jwtConfiguration->parser()->parse($token);
+
+        return $this->token;
     }
 
     /**
-     * 验证成功的Token
      *
      * @return JWTToken
      */
@@ -120,10 +126,24 @@ class Token
         return $this->token;
     }
 
+    /**
+     * 
+     * @param string $token
+     * @return boolean|null
+     */
     public function verify(string $token): ?bool
     {
-        $this->token = $this->parseToken($token);
+        $this->validate($token);
+    }
 
+    /**
+     * 效验 Token
+     * @param string $token
+     * @return boolean
+     */
+    public function validate(string $token)
+    {
+        $token = $this->parse($token);
         $this->jwtConfiguration->setValidationConstraints(
             new ValidAt(new SystemClock(new DateTimeZone(\date_default_timezone_get()))),
             new SignedWith($this->jwtConfiguration->signer(), $this->jwtConfiguration->signingKey())
@@ -131,11 +151,7 @@ class Token
 
         $constraints = $this->jwtConfiguration->validationConstraints();
 
-        if (!$this->jwtConfiguration->validator()->validate($this->token, ...$constraints)) {
-            throw new JWTException('效验失败', 401);
-        }
-
-        return true;
+        return $this->jwtConfiguration->validator()->validate($token, ...$constraints);
     }
 
     public function logout(?string $token): void

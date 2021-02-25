@@ -37,7 +37,7 @@ class Token
             throw new JWTException('config signer_key required.', 500);
         }
 
-        return $this->signer_key;
+        return base64_encode($this->signer_key);
     }
 
     public function getIdKey(): string

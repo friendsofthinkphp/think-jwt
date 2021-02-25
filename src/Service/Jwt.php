@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace xiaodi\JWTAuth\Service;
 
+use DateTime;
 use think\App;
 
 use Lcobucci\JWT\Token as JwtToken;
@@ -38,7 +39,7 @@ class Jwt
         if ($store) {
             $this->store = $store;
         }
-        
+
         return $this;
     }
 
@@ -82,52 +83,21 @@ class Jwt
      * @param string $token
      * @return boolean
      */
-    public function verify(?string $token = null): bool
+    public function verify(?string $token): bool
     {
+        $service = $this->app->get('jwt.token');
         if (!$token) {
-            $token = $this->app->get('jwt.token')->getRequestToken();
+            $token = $service->getRequestToken();
         }
 
-        return $this->app->get('jwt.token')->verify($token);
-    }
+        if (!$service->verify($token)) {
+            $token = $service->getToken();
+            if ($token->isExpired(new DateTime())) {
+                // todo 过期
+            }
 
-    public function destroyStoreWhitelist($store)
-    {
-        return $this->app->get('jwt.manager')->destroyStoreWhitelist($store);
-    }
+        }
 
-    public function user()
-    {
-        return $this->app->get('jwt.user');
-    }
-
-    public function type()
-    {
-        return $this->app->get('jwt.token')->getType();
-    }
-
-    public function refreshTTL()
-    {
-        return $this->app->get('jwt.token')->getRefreshTTL();
-    }
-
-    public function ttl()
-    {
-        return $this->app->get('jwt.token')->getRefreshTTL();
-    }
-
-    public function refresh(?string $token = null)
-    {
-        return $this->app->get('jwt.token')->refresh($token);
-    }
-
-    public function logout(?string $token = null)
-    {
-        return $this->app->get('jwt.token')->logout($token);
-    }
-
-    public function destroyToken($jti, $store)
-    {
-        return $this->app->get('jwt.manager')->destroyToken($jti, $store);
+        return true;
     }
 }
