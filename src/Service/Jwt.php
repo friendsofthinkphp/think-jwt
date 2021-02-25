@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace xiaodi\JWTAuth\Service;
 
 use DateTime;
+use DateTimeImmutable;
+use Exception;
 use think\App;
 
 use Lcobucci\JWT\Token as JwtToken;
+use xiaodi\JWTAuth\Exception\JWTException;
+use xiaodi\JWTAuth\Exception\TokenAlreadyEexpired;
 
 class Jwt
 {
@@ -67,14 +71,7 @@ class Jwt
     {
         $token = $this->app->get('jwt.token')->make($identifier, $claims);
 
-        // $this->app->get('jwt.manager')->login($token);
-
         return $token;
-    }
-
-    public function getToken()
-    {
-        return $this->app->get('jwt.token')->getToken();
     }
 
     /**
@@ -90,12 +87,22 @@ class Jwt
             $token = $service->getRequestToken();
         }
 
-        if (!$service->verify($token)) {
+        if (!$service->validate($token)) {
+            $now = new DateTimeImmutable();
             $token = $service->getToken();
-            if ($token->isExpired(new DateTime())) {
-                // todo 过期
+            if (!$service->isRefreshExpired($now)) {
+                $config = $service->getConfig();
+                if ($config->getAutomaticRenewal()) {
+                    $token = $service->automaticRenewalToken($token);
+                }
+            } else {
+                throw new JWTException('效验失败', 401);
             }
+        }
 
+        // 是否存在黑名单
+        if (true === $this->app->get('jwt.manager')->wasBan($token)) {
+            throw new TokenAlreadyEexpired('token was ban', $this->config->getReloginCode());
         }
 
         return true;

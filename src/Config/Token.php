@@ -9,7 +9,6 @@ use xiaodi\JWTAuth\Exception\JWTException;
 
 class Token
 {
-    protected $unique_id_key = 'uid';
     protected $signer_key = null;
     protected $not_before = 0;
     protected $expires_at = 3600;
@@ -38,11 +37,6 @@ class Token
         }
 
         return base64_encode($this->signer_key);
-    }
-
-    public function getIdKey(): string
-    {
-        return $this->unique_id_key;
     }
 
     public function getExpires()

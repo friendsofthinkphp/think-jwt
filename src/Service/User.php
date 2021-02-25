@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace xiaodi\JWTAuth\Service;
 
-use Exception;
 use think\App;
-use think\Model;
 use xiaodi\JWTAuth\Config\User as Config;
 use xiaodi\JWTAuth\Exception\JWTException;
 
@@ -42,12 +40,20 @@ class User
         return $options;
     }
 
+    /**
+     * @var Config
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
     public function getClass(): string
     {
-        $token = $this->app->get('jwt')->getToken();
+        $token = $this->app->get('jwt.token')->getToken();
 
         try {
-            $class = $token->getClaim('model', $this->config->getClass());
+            $class = $token->claims()->get('model', $this->config->getClass());
         } catch (\OutOfBoundsException $e) {
             $store = $this->getStore();
             throw new JWTException("{$store}应用未配置用户模型文件");
@@ -64,7 +70,7 @@ class User
     public function find()
     {
         $class = $this->getClass();
-        $token = $this->app->get('jwt')->getToken();
+        $token = $this->app->get('jwt.token')->getToken();
         $uid = $token->getHeader('jti');
 
         $model = new $class();

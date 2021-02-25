@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace xiaodi\JWTAuth\Service;
 
@@ -18,7 +18,7 @@ class SSO
     public function __construct(App $app)
     {
         $this->app = $app;
-        
+
         $this->init();
     }
 
@@ -27,6 +27,14 @@ class SSO
         $options = $this->resolveConfig();
 
         $this->config = new Config($options);
+    }
+
+    /**
+     * @var Config
+     */
+    public function getConfig()
+    {
+        return $this->config;
     }
 
     protected function getStore(): string

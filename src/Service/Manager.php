@@ -36,6 +36,14 @@ class Manager
         $this->config = new Config($options);
     }
 
+    /**
+     * @var Config
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
     public function login(Token $token): void
     {
         if ($this->app->get('jwt.sso')->getEnable()) {
@@ -47,19 +55,18 @@ class Manager
 
     protected function handleSSO(Token $token): void
     {
-        $jti = $token->getClaim('jti');
-        $store = $token->getClaim('store');
-        $exp = $token->getClaim('exp') - time();
+        $jti = $token->claims()->get('jti');
+        $store = $token->claims()->get()('store');
 
         $this->destroyToken($jti, $store);
     }
 
     protected function pushWhitelist(Token $token): void
     {
-        $jti = $token->getClaim('jti');
-        $store = $token->getClaim('store');
-        $exp = $token->getClaim('exp') - time();
-        $tag = $store .'-' . $this->config->getWhitelist();
+        $jti = $token->claims()->get('jti');
+        $store = $token->claims()->get('store');
+        $exp = $token->claims()->get('exp') - time();
+        $tag = $store . '-' . $this->config->getWhitelist();
 
         $key = $this->formatKey($store, $this->config->getWhitelist(), $jti, (string)$token);
         $this->setCache($tag, $key, (string)$token, $exp);
@@ -67,11 +74,11 @@ class Manager
 
     protected function pushBlacklist(Token $token): void
     {
-        $jti = $token->getClaim('jti');
-        $store = $token->getClaim('store');
+        $jti = $token->claims()->get('jti');
+        $store = $token->claims()->get('store');
 
-        $exp = $token->getClaim('exp') - time();
-        $tag = $store .'-' . $this->config->getBlacklist();
+        $exp = $token->claims()->get('exp') - time();
+        $tag = $store . '-' . $this->config->getBlacklist();
         $key = $this->formatKey($store, $this->config->getBlacklist(), $jti, (string)$token);
 
         $this->setCache($tag, $key, (string)$token, $exp);
@@ -84,15 +91,15 @@ class Manager
 
     public function wasBan(Token $token): bool
     {
-        $jti = $token->getClaim('jti');
-        $store = $token->getClaim('store');
+        $jti = $token->claims()->get('jti');
+        $store = $token->claims()->get('store');
 
-        return $this->getBlacklist($store, $jti, (string)$token) === (string) $token ? true : false;
+        return $this->getBlacklist($store, $jti, $token) === $token->toString();
     }
 
-    protected function getBlacklist(string $store, string $jti, string $token)
+    protected function getBlacklist(string $store, string $jti, Token $token)
     {
-        return $this->getCache($store, $this->config->getBlacklist(), $jti, $token);
+        return $this->getCache($store, $this->config->getBlacklist(), $jti, $token->toString());
     }
 
     public function destroyStoreWhitelist($store): void
@@ -108,14 +115,13 @@ class Manager
     public function destroyToken($id, $store): void
     {
         $type = $this->config->getWhitelist();
-        $tag = $store .'-' . $type;
+        $tag = $store . '-' . $type;
 
         $rule = implode(':', [$this->config->getPrefix(), $store, $type, $id]);
         $keys = $this->app->cache->getTagItems($tag);
         $parser = new Parser();
 
-        foreach($keys as $key) {
-
+        foreach ($keys as $key) {
             if (false !== strpos($key, $rule)) {
                 $value = $this->app->cache->get($key);
 

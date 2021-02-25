@@ -6,6 +6,7 @@ namespace xiaodi\JWTAuth\Service;
 
 use DateTimeZone;
 use DateTimeImmutable;
+use DateTimeInterface;
 use think\App;
 use xiaodi\JWTAuth\Config\Token as Config;
 use xiaodi\JWTAuth\Handle\RequestToken;
@@ -72,6 +73,11 @@ class Token
         return $this->app->get('jwt')->getStore();
     }
 
+    public function getToken()
+    {
+        return $this->token;
+    }
+
     protected function resolveConfig()
     {
         $store = $this->getStore();
@@ -87,7 +93,7 @@ class Token
     public function make($identifier, array $claims = []): JwtToken
     {
         $now   = new DateTimeImmutable();
-        return $this->jwtConfiguration->builder()
+        $builder = $this->jwtConfiguration->builder()
             ->permittedFor($this->config->getAud())
             ->issuedBy($this->config->getIss())
             ->identifiedBy((string)$identifier)
@@ -95,8 +101,13 @@ class Token
             ->canOnlyBeUsedAfter($now)
             ->expiresAt($this->getExpiryDateTime($now))
             ->relatedTo((string) $identifier)
-            ->withClaim('scopes', json_encode($claims))
-            ->getToken($this->jwtConfiguration->signer(), $this->jwtConfiguration->signingKey());
+            ->withClaim('store', $this->getStore());
+
+        foreach ($claims as $key => $value) {
+            $builder->withClaim($key, $value);
+        }
+
+        return $builder->getToken($this->jwtConfiguration->signer(), $this->jwtConfiguration->signingKey());
     }
 
     public function getExpiryDateTime($now): DateTimeImmutable
@@ -115,25 +126,6 @@ class Token
         $this->token = $this->jwtConfiguration->parser()->parse($token);
 
         return $this->token;
-    }
-
-    /**
-     *
-     * @return JWTToken
-     */
-    public function getToken(): ?JwtToken
-    {
-        return $this->token;
-    }
-
-    /**
-     * 
-     * @param string $token
-     * @return boolean|null
-     */
-    public function verify(string $token): ?bool
-    {
-        $this->validate($token);
     }
 
     /**
@@ -157,7 +149,7 @@ class Token
     public function logout(?string $token): void
     {
         $token = $token ?: $this->getRequestToken();
-        $token = $this->parseToken($token);
+        $token = $this->parse($token);
 
         $this->app->get('jwt.manager')->logout($token);
     }
@@ -176,8 +168,53 @@ class Token
         return $token;
     }
 
-    public function getType(): string
+    public function isRefreshExpired(DateTimeInterface $now): bool
     {
-        return $this->config->getTokenType();
+        if (!$this->token->claims()->has('iat')) {
+            return false;
+        }
+
+        $iat = $this->token->claims()->get('iat');
+        $refresh_ttl = $this->config->getRefreshTTL();
+        $refresh_exp = $iat->modify("+{$refresh_ttl} sec");
+        return $now >= $refresh_exp;
+    }
+
+    /**
+     * @var Config
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
+     * Token 自动续期
+     *
+     * @param Token $token
+     * @param int|string $ttl 秒数
+     * @return void
+     */
+    public function automaticRenewalToken(JwtToken $token)
+    {
+        $claims = $token->claims()->all();
+
+        $jti = $claims['jti'];
+        unset($claims['aud']);
+        unset($claims['iss']);
+        unset($claims['jti']);
+        unset($claims['iat']);
+        unset($claims['nbf']);
+        unset($claims['exp']);
+        unset($claims['sub']);
+
+        $token = $this->make($jti, $claims);
+        $refreshAt = $this->config->getRefreshTTL();
+
+        header('Access-Control-Expose-Headers:Automatic-Renewal-Token,Automatic-Renewal-Token-RefreshAt');
+        header("Automatic-Renewal-Token:" . $token->toString());
+        header("Automatic-Renewal-Token-RefreshAt:$refreshAt");
+
+        return $token;
     }
 }
