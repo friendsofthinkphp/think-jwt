@@ -80,6 +80,9 @@ class JwtAuth
             $token = $service->getRequestToken();
         }
 
+        // 是否存在黑名单
+        $this->wasBan($token);
+
         if (!$service->validate($token)) {
             $now = new DateTimeImmutable();
 
@@ -96,13 +99,16 @@ class JwtAuth
             $token = $this->app->get('jwt.token')->getToken();
         }
 
-        // 是否存在黑名单
+        return true;
+    }
+
+    protected function wasBan($token)
+    {
+        $token = $this->app->get('jwt.token')->parse($token);
         if (true === $this->app->get('jwt.manager')->wasBan($token)) {
             $config = $this->app->get('jwt.token')->getConfig();
 
             throw new TokenAlreadyEexpired('token was ban', $config->getReloginCode());
         }
-
-        return true;
     }
 }
