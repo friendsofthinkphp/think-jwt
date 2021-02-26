@@ -82,6 +82,8 @@ class Manager
 
         $now = time();
         $exp = $token->claims()->get('exp');
+        $ttl = $this->app->get('jwt.token')->getConfig()->getRefreshTTL();
+        $exp = $exp->modify("+{$ttl} sec");
         $ttl = $exp->getTimestamp() - $now;
         $tag = $store . '-' . $this->config->getBlacklist();
         $key = $this->makeKey($store, $this->config->getBlacklist(), $jti, $token);
