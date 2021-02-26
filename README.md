@@ -36,7 +36,6 @@ return [
                 'enable' => false,
             ],
             'token' => [
-                'unique_id_key' => 'uid',
                 'signer_key'    => 'tant',
                 'not_before'    => 0,
                 'expires_at'    => 3600,
@@ -67,7 +66,6 @@ return [
 
 ```
 ## token
-* `unique_id_key` 用户唯一标识
 * `signer_key` 密钥
 * `not_before` 时间前不能使用 默认生成后直接使用
 * `refresh_ttL` Token有效期（秒）
@@ -102,7 +100,7 @@ public function login()
 
     // 自动获取当前应用下的jwt配置
     return json([
-        'token' => Jwt::token(['uid' => 1]),
+        'token' => Jwt::token($uid, ['params1' => 1, 'params2' => 2']),
     ]);
 }
 ```
