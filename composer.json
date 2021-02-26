@@ -7,7 +7,7 @@
         "thinkphp"
     ],
     "description": "ThinkPHP Jwt Component",
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "authors": [
         {
             "name": "xiaodi",
@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "php": ">=7.1.0",
+        "php": ">=7.4.0",
         "ext-json": "*",
         "ext-mbstring": "*",
         "lcobucci/jwt": "4.0.1",

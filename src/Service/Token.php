@@ -18,11 +18,6 @@ use Lcobucci\JWT\Validation\Constraint\ValidAt;
 use Lcobucci\Clock\SystemClock;
 use xiaodi\JWTAuth\Exception\JWTException;
 
-/**
- *
- * @method JwtToken make()
- * @method bool verify()
- */
 class Token
 {
     /**
@@ -144,6 +139,11 @@ class Token
         $constraints = $this->jwtConfiguration->validationConstraints();
 
         return $this->jwtConfiguration->validator()->validate($token, ...$constraints);
+    }
+
+    public function login(JwtToken $token)
+    {
+        $this->app->get('jwt.manange')->login($token);
     }
 
     public function logout(?string $token): void

@@ -7,7 +7,6 @@ return [
                 'enable' => false,
             ],
             'token' => [
-                'unique_id_key'    => 'uid',
                 'signer_key'    => 'tant',
                 'not_before'    => 0,
                 'expires_at'    => 3600,

@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace xiaodi\JWTAuth\Service;
 
-use DateTime;
 use DateTimeImmutable;
-use Exception;
 use think\App;
 
-use Lcobucci\JWT\Token as JwtToken;
+use Lcobucci\JWT\Token;
 use xiaodi\JWTAuth\Exception\JWTException;
 use xiaodi\JWTAuth\Exception\TokenAlreadyEexpired;
 
-class Jwt
+class JwtAuth
 {
     /**
      * 应用名称
@@ -21,13 +19,6 @@ class Jwt
      * @var string
      */
     protected $store;
-
-    /**
-     * Token
-     *
-     * @var Token
-     */
-    protected $token;
 
     protected $user;
 
@@ -65,11 +56,13 @@ class Jwt
      * 生成 Token
      *
      * @param array $claims
-     * @return JwtToken
+     * @return Token
      */
-    public function token($identifier, array $claims = []): JwtToken
+    public function token($identifier, array $claims = []): Token
     {
         $token = $this->app->get('jwt.token')->make($identifier, $claims);
+
+        $this->app->get('jwt.manager')->login($token);
 
         return $token;
     }
@@ -89,6 +82,7 @@ class Jwt
 
         if (!$service->validate($token)) {
             $now = new DateTimeImmutable();
+
             $token = $service->getToken();
             if (!$service->isRefreshExpired($now)) {
                 $config = $service->getConfig();
@@ -98,11 +92,15 @@ class Jwt
             } else {
                 throw new JWTException('效验失败', 401);
             }
+        } else {
+            $token = $this->app->get('jwt.token')->getToken();
         }
 
         // 是否存在黑名单
         if (true === $this->app->get('jwt.manager')->wasBan($token)) {
-            throw new TokenAlreadyEexpired('token was ban', $this->config->getReloginCode());
+            $config = $this->app->get('jwt.token')->getConfig();
+
+            throw new TokenAlreadyEexpired('token was ban', $config->getReloginCode());
         }
 
         return true;
