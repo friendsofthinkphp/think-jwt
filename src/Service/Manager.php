@@ -140,7 +140,7 @@ class Manager
             if ($handle == 'file') {
                 $token = unserialize($this->decodeFileCache($key)['content']);
             } else if ($handle == 'redis') {
-                // todo
+                $token = $this->app->cache->get($key);
             }
 
             $token = $this->app->get('jwt.token')->parse($token);
