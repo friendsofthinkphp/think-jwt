@@ -71,7 +71,7 @@ class User
     {
         $class = $this->getClass();
         $token = $this->app->get('jwt.token')->getToken();
-        $uid = $token->getHeader('jti');
+        $uid = $token->claims()->get('jti');
 
         $model = new $class();
         return $model->find($uid);

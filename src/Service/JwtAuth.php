@@ -73,7 +73,7 @@ class JwtAuth
      * @param string $token
      * @return boolean
      */
-    public function verify(?string $token): bool
+    public function verify(string $token = null): bool
     {
         $service = $this->app->get('jwt.token');
         if (!$token) {

@@ -55,7 +55,7 @@ class Manager
     protected function handleSSO(Token $token): void
     {
         $jti = $token->claims()->get('jti');
-        $store = $token->claims()->get()('store');
+        $store = $token->claims()->get('store');
 
         $this->destroyToken($jti, $store);
     }
