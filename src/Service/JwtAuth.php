@@ -111,4 +111,15 @@ class JwtAuth
             throw new TokenAlreadyEexpired('token was ban', $config->getReloginCode());
         }
     }
+
+    public function logout(string $token = null)
+    {
+        $service = $this->app->get('jwt.token');
+        if (!$token) {
+            $token = $service->getRequestToken();
+        }
+
+        $token = $service->parse($token);
+        $this->app->get('jwt.manager')->pushBlacklist($token);
+    }
 }

@@ -75,7 +75,7 @@ class Manager
         $this->setCache($tag, $key, $token, $ttl);
     }
 
-    protected function pushBlacklist(Token $token): void
+    public function pushBlacklist(Token $token): void
     {
         $jti = $token->claims()->get('jti');
         $store = $token->claims()->get('store');

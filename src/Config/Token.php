@@ -84,9 +84,8 @@ class Token
         return $this->automatic_renewal;
     }
 
-    public function getTokenType()
+    public function getType()
     {
         return $this->type;
     }
-    
 }

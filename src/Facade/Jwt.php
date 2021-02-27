@@ -7,8 +7,8 @@ namespace xiaodi\JWTAuth\Facade;
 use think\Facade;
 
 /**
- * @see \xiaodi\JWTAuth\Jwt
- * @mixin \xiaodi\JWTAuth\Jwt
+ * @see \xiaodi\JWTAuth\Service\Jwt
+ * @mixin \xiaodi\JWTAuth\Service\Jwt
  */
 class Jwt extends Facade
 {
@@ -19,6 +19,6 @@ class Jwt extends Facade
      */
     protected static function getFacadeClass()
     {
-        return \xiaodi\JWTAuth\JwtAuth::class;
+        return \xiaodi\JWTAuth\Service\JwtAuth::class;
     }
 }

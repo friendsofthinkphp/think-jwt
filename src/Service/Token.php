@@ -163,7 +163,7 @@ class Token
     {
         $requestToken = new RequestToken($this->app);
 
-        $token = $requestToken->get($this->config->getTokenType());
+        $token = $requestToken->get($this->config->getType());
 
         return $token;
     }
