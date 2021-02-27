@@ -120,6 +120,6 @@ class JwtAuth
         }
 
         $token = $service->parse($token);
-        $this->app->get('jwt.manager')->pushBlacklist($token);
+        $this->app->get('jwt.manager')->logout($token);
     }
 }
