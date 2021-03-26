@@ -31,7 +31,10 @@
     "autoload": {
         "psr-4": {
             "xiaodi\\JWTAuth\\": "src/"
-        }
+        },
+        "files": [
+            "src/helper.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
