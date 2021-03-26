@@ -99,12 +99,12 @@ public function login()
 
     // 自动获取当前应用下的jwt配置
     return json([
-        'token' => Jwt::token($uid, ['params1' => 1, 'params2' => 2']),
+        'token' => Jwt::token($uid, ['params1' => 1, 'params2' => 2'])->toString(),
     ]);
     
     // 自定义用户模型
     return json([
-        'token' => Jwt::token($uid, ['model' => CustomMember::class]),
+        'token' => Jwt::token($uid, ['model' => CustomMember::class])->toString(),
     ]);
 }
 ```
