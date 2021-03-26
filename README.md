@@ -17,12 +17,7 @@ $ composer require xiaodi/think-jwt:dev-master
 ```
 
 ## 使用
-1. 命令生成签名key
-```sh
-$ php think jwt:make
-```
-
-2. 配置
+1. 配置
 `config/jwt.php`
 
 完整多应用配置
@@ -101,6 +96,11 @@ public function login()
     // 自动获取当前应用下的jwt配置
     return json([
         'token' => Jwt::token($uid, ['params1' => 1, 'params2' => 2']),
+    ]);
+    
+    // 自定义用户模型
+    return json([
+        'token' => Jwt::token($uid, ['model' => CustomMember::class]),
     ]);
 }
 ```
