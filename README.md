@@ -83,6 +83,10 @@ return [
 * `xiaodi\Exception\HasLoggedException`
 * `xiaodi\Exception\TokenAlreadyEexpired`
 
+### 缓存支持
+* File
+* Redis
+
 ## Token 生成
 ```php
 namespace app\home\controller\Auth;
