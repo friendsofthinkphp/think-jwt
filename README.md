@@ -13,7 +13,7 @@ $ composer require xiaodi/think-jwt
 
 开发版
 ```sh
-$ composer require xiaodi/think-jwt:dev-master
+$ composer require xiaodi/think-jwt:dev-next
 ```
 
 ## 使用
