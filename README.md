@@ -96,7 +96,7 @@ public function login()
 
     // 默认应用
     return json([
-        'token' => Jwt::token(['uid' => 1]),
+        'token' => (string)Jwt::token(['uid' => 1]),
         'token_type' => Jwt::type(),
         'expires_in' => Jwt::ttl(),
         'refresh_in' => Jwt::refreshTTL()
@@ -104,7 +104,7 @@ public function login()
     
     // 指定应用
     return json([
-        'token' => Jwt::store('wechat')->token(['uid' => 1]),
+        'token' => (string)Jwt::store('wechat')->token(['uid' => 1]),
         'token_type' => Jwt::type(),
         'expires_in' => Jwt::ttl(),
         'refresh_in' => Jwt::refreshTTL()
