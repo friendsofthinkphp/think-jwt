@@ -104,10 +104,7 @@ public function login()
     
     // 自定义用户模型
     return json([
-        'token' => (string)Jwt::store('wechat')->token(['uid' => 1]),
-        'token_type' => Jwt::type(),
-        'expires_in' => Jwt::ttl(),
-        'refresh_in' => Jwt::refreshTTL()
+        'token' => Jwt::token($uid, ['model' => CustomMember::class])->toString(),
     ]);
 }
 ```
