@@ -122,4 +122,10 @@ class JwtAuth
         $token = $service->parse($token);
         $this->app->get('jwt.manager')->logout($token);
     }
+    
+    public function user()
+    {
+        return $this->app->get('jwt.user')->find();
+    }
+
 }
