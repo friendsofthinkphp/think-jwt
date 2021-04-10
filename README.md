@@ -20,12 +20,36 @@ $ composer require xiaodi/think-jwt:dev-next
 1. 配置
 `config/jwt.php`
 
-完整多应用配置
+完整配置
 ```php
 <?php
 
 return [
     'stores' => [
+        // 单应用时 默认使用此配置
+        'default' => [
+            'sso' => [
+                'enable' => false,
+            ],
+            'token' => [
+                'signer_key'    => 'tant',
+                'not_before'    => 0,
+                'expires_at'    => 3600,
+                'refresh_ttL'   => 7200,
+                'signer'       => 'Lcobucci\JWT\Signer\Hmac\Sha256',
+                'type'         => 'Header',
+                'relogin_code'      => 50001,
+                'refresh_code'      => 50002,
+                'iss'          => 'client.tant',
+                'aud'          => 'server.tant',
+                'automatic_renewal' => false,
+            ],
+            'user' => [
+                'bind' => false,
+                'class'  => null,
+            ]
+        ],
+        // 多应用时 对应应用的配置
         'admin' => [
             'sso' => [
                 'enable' => false,
@@ -99,7 +123,7 @@ public function login()
 
     // 自动获取当前应用下的jwt配置
     return json([
-        'token' => Jwt::token($uid, ['params1' => 1, 'params2' => 2'])->toString(),
+        'token' => Jwt::token($uid, ['params1' => 1, 'params2' => 2])->toString(),
     ]);
     
     // 自定义用户模型
