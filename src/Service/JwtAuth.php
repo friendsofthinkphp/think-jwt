@@ -49,7 +49,7 @@ class JwtAuth
 
     protected function getDefaultApp(): string
     {
-        return $this->app->http->getName();
+        return multi_app() === true ? $this->app->http->getName() : 'default';
     }
 
     /**
