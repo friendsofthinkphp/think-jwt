@@ -9,6 +9,8 @@ return [
             ],
             'token' => [
                 'signer_key'    => 'tant',
+                'public_key'    => 'file://path/public.key',
+                'private_key'   => 'file://path/private.key',
                 'not_before'    => 0,
                 'expires_at'    => 3600,
                 'refresh_ttL'   => 7200,

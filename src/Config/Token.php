@@ -6,6 +6,11 @@ namespace xiaodi\JWTAuth\Config;
 
 use Lcobucci\JWT\Signer;
 use xiaodi\JWTAuth\Exception\JWTException;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Signer\Key;
+use Lcobucci\JWT\Signer\Key\LocalFileReference;
+use Lcobucci\JWT\Signer\Hmac;
+use Lcobucci\JWT\Signer\Rsa;
 
 class Token
 {
@@ -20,6 +25,8 @@ class Token
     protected $iss = 'client.xiaodim.com';
     protected $aud = 'server.xiaodim.com';
     protected $automatic_renewal = false;
+    protected $public_key = '';
+    protected $private_key = '';
 
     public function __construct(array $options)
     {
@@ -30,13 +37,43 @@ class Token
         }
     }
 
-    public function getSigningKey()
+    public function getHamcKey(): Key
     {
         if (empty($this->signer_key)) {
             throw new JWTException('config signer_key required.', 500);
         }
 
-        return base64_encode($this->signer_key);
+        return InMemory::base64Encoded((string)$this->signer_key);
+    }
+
+    public function RSASigner()
+    {
+        $signer = $this->getSigner();
+
+        return $signer instanceof Rsa;
+    }
+
+    public function getSignerKey(): Key
+    {
+        $signer = $this->getSigner();
+
+        if ($this->RSASigner()) {
+            return $this->getPrivateKey();
+        } else if ($signer instanceof Hmac) {
+            return $this->getHamcKey();
+        } else {
+            throw new JWTException('not support.', 500);
+        }
+    }
+
+    public function getPublicKey(): Key
+    {
+        return LocalFileReference::file($this->public_key);
+    }
+
+    public function getPrivateKey(): Key
+    {
+        return LocalFileReference::file($this->private_key);
     }
 
     public function getExpires()
@@ -73,7 +110,7 @@ class Token
     {
         return $this->relogin_code;
     }
-    
+
     public function getRefreshCode()
     {
         return $this->refresh_code;

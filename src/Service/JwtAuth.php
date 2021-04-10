@@ -83,23 +83,12 @@ class JwtAuth
         // 是否存在黑名单
         $this->wasBan($token);
 
-        if (!$service->validate($token)) {
-            $now = new DateTimeImmutable();
-
-            $token = $service->getToken();
-            if (!$service->isRefreshExpired($now)) {
-                $config = $service->getConfig();
-                if ($config->getAutomaticRenewal()) {
-                    $token = $service->automaticRenewalToken($token);
-                }
-            } else {
-                throw new JWTException('效验失败', 401);
-            }
-        } else {
-            $token = $this->app->get('jwt.token')->getToken();
+        // 检测合法性
+        if ($service->validate($token)) {
+            return $service->validateExp($token);
         }
 
-        return true;
+        return false;
     }
 
     protected function wasBan($token)
@@ -122,10 +111,9 @@ class JwtAuth
         $token = $service->parse($token);
         $this->app->get('jwt.manager')->logout($token);
     }
-    
+
     public function user()
     {
         return $this->app->get('jwt.user')->find();
     }
-
 }

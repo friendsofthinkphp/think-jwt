@@ -12,11 +12,11 @@ use xiaodi\JWTAuth\Config\Token as Config;
 use xiaodi\JWTAuth\Handle\RequestToken;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Token as JwtToken;
-use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Constraint\ValidAt;
 use Lcobucci\Clock\SystemClock;
 use xiaodi\JWTAuth\Exception\JWTException;
+use Lcobucci\JWT\Signer\Key\InMemory;
 
 class Token
 {
@@ -59,7 +59,7 @@ class Token
     {
         $this->jwtConfiguration = Configuration::forSymmetricSigner(
             $this->config->getSigner(),
-            InMemory::base64Encoded($this->config->getSigningKey())
+            $this->config->getSignerKey()
         );
     }
 
@@ -123,23 +123,54 @@ class Token
         return $this->token;
     }
 
+    protected function getValidateConfig()
+    {
+        return Configuration::forSymmetricSigner(
+            $this->config->getSigner(),
+            $this->config->RSASigner() ? $this->config->getPublicKey() : $this->config->getHamcKey()
+        );
+    }
+
     /**
-     * 效验 Token
+     * 效验合法性 Token
      * @param string $token
      * @return boolean
      */
     public function validate(string $token)
     {
         $token = $this->parse($token);
-        $this->jwtConfiguration->setValidationConstraints(
-            new ValidAt(new SystemClock(new DateTimeZone(\date_default_timezone_get()))),
-            new SignedWith($this->jwtConfiguration->signer(), $this->jwtConfiguration->signingKey())
+
+        $jwtConfiguration = $this->getValidateConfig();
+
+        $jwtConfiguration->setValidationConstraints(
+            new SignedWith($jwtConfiguration->signer(), $jwtConfiguration->signingKey())
         );
 
-        $constraints = $this->jwtConfiguration->validationConstraints();
+        $constraints = $jwtConfiguration->validationConstraints();
 
-        return $this->jwtConfiguration->validator()->validate($token, ...$constraints);
+        return $jwtConfiguration->validator()->validate($token, ...$constraints);
     }
+
+    /**
+     * 效验是否过期 Token
+     * @param string $token
+     * @return boolean
+     */
+    public function validateExp(string $token)
+    {
+        $token = $this->parse($token);
+
+        $jwtConfiguration = $this->getValidateConfig();
+
+        $jwtConfiguration->setValidationConstraints(
+            new ValidAt(new SystemClock(new DateTimeZone(\date_default_timezone_get()))),
+        );
+
+        $constraints = $jwtConfiguration->validationConstraints();
+
+        return $jwtConfiguration->validator()->validate($token, ...$constraints);
+    }
+
 
     public function login(JwtToken $token)
     {
