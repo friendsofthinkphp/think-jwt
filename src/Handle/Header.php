@@ -10,10 +10,14 @@ class Header extends RequestToken
     {
         $authorization = $this->app->request->header('authorization');
 
-        if (!$authorization || strpos($authorization, 'Bearer ') !== 0) {
+        if (!$authorization) {
             return;
         }
 
-        return substr($authorization, 7);
+        if (strpos($authorization, 'Bearer ') === 0) {
+            return substr($authorization, 7);
+        } else {
+            return $authorization;
+        }
     }
 }
