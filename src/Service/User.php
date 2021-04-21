@@ -7,6 +7,7 @@ namespace xiaodi\JWTAuth\Service;
 use think\App;
 use xiaodi\JWTAuth\Config\User as Config;
 use xiaodi\JWTAuth\Exception\JWTException;
+use think\User\AuthorizationUserInterface;
 
 class User
 {
@@ -74,6 +75,10 @@ class User
         $uid = $token->claims()->get('jti');
 
         $model = new $class();
-        return $model->find($uid);
+        if ($model instanceof AuthorizationUserInterface) {
+            return $model->getUserById($uid);
+        } else {
+            throw new JWTException('implements ' . AuthorizationUserInterface::class);
+        }
     }
 }

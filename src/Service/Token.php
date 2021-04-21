@@ -248,4 +248,14 @@ class Token
 
         return $token;
     }
+
+    public function getClaims()
+    {
+        return $this->token->claims()->all();
+    }
+
+    public function getClaim($name)
+    {
+        return $this->token->claims()->get($name);
+    }
 }
