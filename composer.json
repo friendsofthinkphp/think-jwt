@@ -1,6 +1,5 @@
 {
-    "name": "xiaodi/think-jwt",
-    "type": "think-extend",
+    "name": "xiaodi-dev/think-jwt",
     "license": "MIT",
     "keywords": [
         "php",
@@ -10,18 +9,12 @@
     "minimum-stability": "dev",
     "authors": [
         {
-            "name": "xiaodi",
+            "name": "Eden Lenug",
             "email": "liangjinbiao@live.com"
         }
     ],
     "require": {
-        "php": ">=7.4.0",
-        "ext-json": "*",
-        "ext-mbstring": "*",
-        "lcobucci/jwt": "4.0.1",
-        "nette/php-generator": "^3.2",
-        "topthink/framework": "^6.0",
-        "xiaodi/think-user": "0.0.1"
+        "topthink/framework": "^6.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.2",
@@ -32,32 +25,12 @@
     "autoload": {
         "psr-4": {
             "xiaodi\\JWTAuth\\": "src/"
-        },
-        "files": [
-            "src/helper.php"
-        ]
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "xiaodi\\JWTAuth\\Tests\\": "tests/"
         }
     },
-    "extra": {
-        "think": {
-            "services": [
-                "xiaodi\\JWTAuth\\JwtService"
-            ],
-            "config": {
-                "jwt": "config/config.php"
-            }
-        },
-        "think-config": {
-            "jwt": "config/config.php"
+    "repositories": {
+        "jwt-auth": {
+            "type": "path",
+            "url": "C:/dnmp/www/vben-webman/jwt"
         }
-    },
-    "scripts": {
-        "coverage": "vendor/bin/phpunit --coverage-html=coverage",
-        "test": "vendor/bin/phpunit",
-        "phpcs": "vendor/bin/php-cs-fixer fix"
     }
 }
