@@ -1,9 +1,10 @@
 <?php
 
-namespace xiaodi\JWTAuth;
+namespace xiaodi\think\jwt;
 
 use think\App;
 use JwtAuth\Config;
+use xiaodi\think\jwt\Event;
 
 class JwtAuth
 {
@@ -22,6 +23,8 @@ class JwtAuth
      */
     protected $defaultStore = 'default';
 
+    protected $jwt;
+
     /**
      * @param App $app
      * @param string $store
@@ -33,8 +36,9 @@ class JwtAuth
         $this->app = $app;
 
         $config = $this->getConfig($store);
+        $eventContext = new Event($app);
 
-        return new \JwtAuth\JwtAuth($config);
+        $this->jwt = new \JwtAuth\JwtAuth($config, $eventContext);
     }
 
     /**
@@ -47,7 +51,7 @@ class JwtAuth
             $store = $this->getDefaultApp();
         }
 
-        $options = $this->app->config('jwt.stores.' . $store);
+        $options = $this->app->config->get('jwt.stores.' . $store);
         return new Config($options);
     }
 
@@ -67,5 +71,10 @@ class JwtAuth
     protected function getDefaultApp()
     {
         return $this->defaultStore;
+    }
+
+    public function __call($name, $arguments)
+    {
+        return call_user_func_array([$this->jwt, $name], [...$arguments]);
     }
 }

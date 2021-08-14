@@ -1,8 +1,8 @@
 <?php
 
-namespace xiaodi\JWTAuth;
+namespace xiaodi\think\jwt;
 
-use xiaodi\JWTAuth\JwtAuth;
+use xiaodi\think\jwt\JwtAuth;
 
 class Service extends \think\Service
 {

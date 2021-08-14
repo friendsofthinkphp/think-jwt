@@ -1,5 +1,5 @@
 {
-    "name": "xiaodi-dev/think-jwt",
+    "name": "xiaodi/think-jwt",
     "license": "MIT",
     "keywords": [
         "php",
@@ -9,28 +9,17 @@
     "minimum-stability": "dev",
     "authors": [
         {
-            "name": "Eden Lenug",
+            "name": "Eden Leung",
             "email": "liangjinbiao@live.com"
         }
     ],
     "require": {
+        "xiaodi/jwt-auth": "0.0.2",
         "topthink/framework": "^6.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^6.2",
-        "mockery/mockery": "^1.2",
-        "phpstan/phpstan": "^0.12.0",
-        "friendsofphp/php-cs-fixer": "^2.15"
     },
     "autoload": {
         "psr-4": {
-            "xiaodi\\JWTAuth\\": "src/"
-        }
-    },
-    "repositories": {
-        "jwt-auth": {
-            "type": "path",
-            "url": "C:/dnmp/www/vben-webman/jwt"
+            "xiaodi\\think\\jwt\\": "src"
         }
     }
 }

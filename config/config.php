@@ -1,6 +1,6 @@
 <?php
 
-use xiaodi\JWTAuth\Event;
+use xiaodi\think\jwt\Event;
 
 return [
     'stores' => [
